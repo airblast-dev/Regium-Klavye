@@ -12,14 +12,14 @@ def _create_profiles() -> Dict[Tuple[int, int], Profile]:
         if not hasattr(item, "profile"):
             continue
         for model in item.profile["models"]:
-            profile = item.profile.copy()
-            vid_pid = (model["vendor_id"], model["product_id"])
+            profile: Profile = item.profile.copy()
+            vid_pid: Tuple[int, int] = (model["vendor_id"], model["product_id"])
             profiles[vid_pid] = profile
     return profiles
 
 
-def get_profile(vid, pid):
+def get_profile(vid: int, pid: int) -> Dict[Tuple[int, int], Profile]:
     return PROFILES[(vid, pid)]
 
 
-PROFILES: Dict[Tuple[int, int], Profile] = _create_profiles()
+PROFILES = _create_profiles()

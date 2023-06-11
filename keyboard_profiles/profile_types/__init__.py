@@ -1,2 +1,1 @@
-from .commands import Commands
-from .model import Model
+from profile_type import Profile

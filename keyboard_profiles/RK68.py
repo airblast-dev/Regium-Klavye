@@ -72,7 +72,7 @@ profile = {
     },
     #  Each value is stored as label (red index, green index, blue index)
     #  For some keys the red or blue value can be at a previous or next step which is why the step index has to be stored with each value.
-    "present_keys": [
+    "present_keys": (
         ("ESC", ((0, 9), (0, 10), (0, 11))),
         ("TAB", ((0, 12), (0, 13), (0, 14))),
         ("CPS", ((0, 15), (0, 16), (0, 17))),
@@ -141,5 +141,5 @@ profile = {
         ("PGUP", ((4, 37), (4, 38), (4, 39))),
         ("PGDWN", ((4, 40), (4, 41), (4, 42))),
         ("RIAR", ((4, 43), (4, 44), (4, 45))),
-    ],
+    ),
 }

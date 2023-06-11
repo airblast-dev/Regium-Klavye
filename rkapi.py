@@ -60,12 +60,15 @@ def get_keyboard(vid: int, pid: int) -> Keyboard:
 
 class NoKeyboardsFound(Exception):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(f"Unable to find any supported keyboards.")
 
 
 from time import sleep
+from timeit import timeit
 
 kb: Keyboard = get_keyboards()[0]
-kb.set_color((0, 100, 0))
-kb.apply_color()
+
+x = timeit("kb.set_color((100,0,0))", globals=globals(), number=100)
+y = timeit("kb.apply_color((100,0,0))", globals=globals(), number=100)
+print(x + y)

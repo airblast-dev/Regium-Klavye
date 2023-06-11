@@ -1,12 +1,13 @@
 from itertools import repeat
 from time import sleep
-from typing import Generator, overload, Optional, Tuple, List, Dict
+from typing import Generator, overload, Optional, Tuple, List, Dict, Literal, Union
 from collections import deque
 
 import hid
 
 from .key import Key
-from keyboard_profiles import PROFILES, Profile
+from keyboard_profiles import PROFILES
+from keyboard_profiles.profile_types import Profile
 
 
 class Keyboard:
@@ -48,7 +49,7 @@ class Keyboard:
     )
 
     def __init__(self, vid: int, pid: int):
-        _profile = PROFILES[(vid, pid)]
+        _profile:  Profile = PROFILES[(vid, pid)]
         self.name: str = _profile["name"]
         self._vid: int = vid
         self._pid: int = pid
@@ -67,9 +68,9 @@ class Keyboard:
         self.anim_params: dict = _profile["commands"]["animations"][
             "animation_params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
-        self._colors: dict = _profile["commands"]["colors"]
+        self._colors: Dict = _profile["commands"]["colors"]
         self._final_anim_data: bytearray
-        self._final_color_data: tuple[bytearray]
+        self._final_color_data: tuple[bytearray, ...]
 
     def __len__(self) -> int:
         """Returns number of keys."""
@@ -120,12 +121,13 @@ class Keyboard:
                 color_index = indexes[1]
                 steps[step_index][color_index] = color
 
-        self._final_color_data: tuple[bytearray] = tuple(map(bytearray, steps))
+        self._final_color_data: Tuple[bytearray,
+                                      ...] = tuple(map(bytearray, steps))
 
     def apply_color(
         self,
         rgb: Optional[Tuple[int, int, int]] = None,
-    ) -> tuple[bytearray]:
+    ) -> tuple[bytearray, ...]:
         """
         Write the final data to the interface.
 
@@ -212,20 +214,17 @@ class Keyboard:
         return new_options
 
     @overload
+    def set_animation(self, anim_name: str, options: Optional[dict]) -> None:
+        ...
+
+    @overload
     def set_animation(self, anim_name: str, **kw_options) -> None:
         ...
 
-    @overload
-    def set_animation(self, anim_name: str, options: dict) -> None:
-        ...
-
-    @overload
-    def set_animation(self, anim_name: str) -> None:
-        ...
-
     def set_animation(self,
-                      anim_name,
-                      options: Optional[dict] = None,
+                      anim_name: str,
+                      options: Optional[Dict[str, Union[Tuple[int, ...],
+                                                        int]]] = None,
                       **kw_options) -> None:
         """
         Set a specific animation with its parameters.
@@ -281,7 +280,7 @@ class KeyboardNotFound(Exception):
 
 class AnimationNotSet(Exception):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             "No animation has been specified. Before calling this function you must set an animation using set_animation."
         )

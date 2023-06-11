@@ -53,7 +53,7 @@ class Key:
     @rgb.setter
     def rgb(self, val: Tuple[int, int, int]) -> None:
         color_check(val)
-        self._rgb: Tuple[int, int, int] = tuple(val)
+        self._rgb: Tuple[int, int, int] = val
 
     @property
     def indexes(
@@ -61,8 +61,9 @@ class Key:
         return self._indexes
 
     @indexes.setter
-    def indexes(self, indexes: Tuple[Tuple[int, int], Tuple[int, int],
-                                     Tuple[int, int]]):
+    def indexes(
+        self, indexes: Tuple[Tuple[int, int], Tuple[int, int],
+                             Tuple[int, int]]) -> None:
         if not isinstance(indexes, (tuple, list)):
             raise TypeError(f"Expected list or tuple, found {type(indexes)}.")
         if len(indexes) != 3:
