@@ -49,7 +49,7 @@ class Keyboard:
     )
 
     def __init__(self, vid: int, pid: int):
-        _profile:  Profile = PROFILES[(vid, pid)]
+        _profile: Profile = PROFILES[(vid, pid)]
         self.name: str = _profile["name"]
         self._vid: int = vid
         self._pid: int = pid

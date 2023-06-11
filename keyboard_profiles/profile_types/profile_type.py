@@ -11,4 +11,4 @@ class Profile(TypedDict):
     models: Tuple[Model]
     commands: Commands
     present_keys: Tuple[Tuple[str, Tuple[Tuple[int, int], Tuple[int, int],
-                                        Tuple[int, int]]], ...]
+                                         Tuple[int, int]]], ...]
