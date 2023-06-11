@@ -1,5 +1,5 @@
-from typing import Sequence, overload
-from helpers.colors import color_check, color_arg_parser
+from typing import Sequence, overload, Optional, Tuple
+from helpers.colors import color_check
 
 
 class Key:
@@ -23,17 +23,14 @@ class Key:
     __slots__ = ("label", "_rgb", "_indexes")
 
     def __init__(
-        self,
-        label: str,
-        indexes: tuple[tuple[int, int], tuple[int, int], tuple[int, int]] = (
-            (0, 0),
-            (0, 0),
-            (0, 0),
-        ),
-        rgb: Sequence[int] = [0, 0, 0],
+            self,
+            label: str,
+            indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]],
+            rgb: Tuple[int, int, int] = (0, 0, 0),
     ):
         if type(label) is not str:
-            raise TypeError(f"Expected string as key label, {type(label)} was found.")
+            raise TypeError(
+                f"Expected string as key label, {type(label)} was found.")
         self.label: str = label
         self.rgb = rgb
         self.set_color(rgb)
@@ -42,48 +39,44 @@ class Key:
     def __repr__(self):
         return f'Key(label="{self.label}", rgb={self.rgb}, indexes={self.indexes})'
 
-    @overload
-    def set_color(self, rgb: list[int, int, int]) -> None:
-        ...
-
-    @overload
-    def set_color(self, red: int, green: int, blue: int) -> None:
-        ...
-
-    def set_color(self, *rgb: Sequence[int], _rgb=None, **kw_rgb) -> None:
-        rgb = color_arg_parser(rgb, kw_rgb=_rgb or kw_rgb)
+    def set_color(self, rgb: Tuple[int, int, int]) -> None:
         color_check(rgb)
-        self._rgb = list(rgb)
+        self._rgb = rgb
 
-    def get_color(self) -> list[int]:
+    def get_color(self) -> Tuple[int, int, int]:
         return self._rgb
 
     @property
-    def rgb(self) -> list[int]:
+    def rgb(self) -> Tuple[int, int, int]:
         return self._rgb
 
     @rgb.setter
-    def rgb(self, val: Sequence[int]) -> None:
+    def rgb(self, val: Tuple[int, int, int]) -> None:
         color_check(val)
-        self._rgb = list(val)
+        self._rgb: Tuple[int, int, int] = tuple(val)
 
     @property
-    def indexes(self):
+    def indexes(
+            self) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
         return self._indexes
 
     @indexes.setter
-    def indexes(self, indexes: Sequence[Sequence[int]]):
+    def indexes(self, indexes: Tuple[Tuple[int, int], Tuple[int, int],
+                                     Tuple[int, int]]):
         if not isinstance(indexes, (tuple, list)):
             raise TypeError(f"Expected list or tuple, found {type(indexes)}.")
         if len(indexes) != 3:
-            raise ValueError(f"Expected 3 values in indexes, found {len(indexes)}.")
+            raise ValueError(
+                f"Expected 3 values in indexes, found {len(indexes)}.")
         for index in indexes:
             if not isinstance(index, (tuple, list)):
                 raise TypeError(f"Expected list or tuple, found {type(index)}.")
             if len(index) != 2:
-                raise ValueError(f"Expected 2 values in index, found {len(index)}.")
+                raise ValueError(
+                    f"Expected 2 values in index, found {len(index)}.")
             if not all(map(lambda val: type(val) is int, index)):
                 types = (type(index[0]), type(index[1]))
                 raise TypeError(f"Expected 2 int's in index found {types}.")
 
-        self._indexes = tuple(indexes)
+        self._indexes: Tuple[Tuple[int, int], Tuple[int, int],
+                             Tuple[int, int]] = indexes

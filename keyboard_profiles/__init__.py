@@ -1,11 +1,13 @@
 from . import RK68
-import types
+from .profile import Profile
+from typing import List, Tuple, Dict
+from types import ModuleType
 
 
-def _create_profiles():
+def _create_profiles() -> Dict[Tuple[int, int], Profile]:
     profiles = {}
     for item in [globals()[name] for name in globals()]:
-        if not isinstance(item, types.ModuleType):
+        if not isinstance(item, ModuleType):
             continue
         if not hasattr(item, "profile"):
             continue
@@ -20,4 +22,4 @@ def get_profile(vid, pid):
     return PROFILES[(vid, pid)]
 
 
-PROFILES: dict = _create_profiles()
+PROFILES: Dict[Tuple[int, int], Profile] = _create_profiles()

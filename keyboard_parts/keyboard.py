@@ -1,11 +1,12 @@
 from itertools import repeat
 from time import sleep
-from typing import Generator, overload, Optional
+from typing import Generator, overload, Optional, Tuple, List, Dict
 from collections import deque
 
 import hid
+
 from .key import Key
-from keyboard_profiles import PROFILES
+from keyboard_profiles import PROFILES, Profile
 
 
 class Keyboard:
@@ -47,19 +48,24 @@ class Keyboard:
     )
 
     def __init__(self, vid: int, pid: int):
-        _profile: dict = PROFILES[(vid, pid)].copy()
+        _profile = PROFILES[(vid, pid)]
         self.name: str = _profile["name"]
         self._vid: int = vid
         self._pid: int = pid
-        self._keys: dict = {key[0]: Key(*(key)) for key in _profile["present_keys"]}
+        self._keys: Dict[str, Key] = {
+            key[0]: Key(*key) for key in _profile["present_keys"]
+        }
         for model in _profile["models"]:
-            if model["vendor_id"] == self._vid and model["product_id"] == self._pid:
-                self._model: dict = model
+            if model["vendor_id"] == self._vid and model[
+                    "product_id"] == self._pid:
+                self._model = model
         self.valid_keys: list[str] = sorted(self._keys.keys())
         self.long_name: str = self._model["long_name"]
-        self._anims: dict = _profile["commands"]["animations"]["animation_options"]
+        self._anims: dict = _profile["commands"]["animations"][
+            "animation_options"]
         self.animations: list = sorted(self._anims.keys())
-        self.anim_params: dict = _profile["commands"]["animations"]["animation_params"]
+        self.anim_params: dict = _profile["commands"]["animations"][
+            "animation_params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
         self._colors: dict = _profile["commands"]["colors"]
         self._final_anim_data: bytearray
@@ -72,9 +78,6 @@ class Keyboard:
     def __getitem__(self, key: str) -> Key:
         """
         Get corresponding Key object with the key label provided.
-
-        To get a specific key, the key's label can be provided.
-        If provided key value is an int or slice the keys will be treated as a list.
         """
         return self._keys[key]
 
@@ -85,40 +88,26 @@ class Keyboard:
     def __repr__(self) -> str:
         return f"Keyboard(name={self.name}, long_name={self.long_name}, _vid={self._vid}, _pid={self._pid})"
 
-    @overload
-    def set_key_color(self, key: str, red, green, blue):
-        ...
-
-    @overload
-    def set_key_color(self, key: str, rgb: list[int]):
-        ...
-
-    def set_key_color(self, key: str, *rgb, **kw_rgb) -> None:
+    def set_key_color(self, key: str, rgb: Tuple[int, int, int]) -> None:
         """Sets RGB values for only a specific key."""
 
         if key in self.valid_keys:
-            self[key].set_color(_rgb=rgb or kw_rgb)
+            self[key].set_color(rgb)
             return
         raise KeyNotFoundError(self.name, key)
 
-    @overload
-    def set_color(self, rgb: list[int]):
-        ...
-
-    @overload
-    def set_color(self, red: int, green: int, blue: int):
-        ...
-
-    def set_color(self, *rgb, **kw_rgb) -> None:
+    def set_color(self, rgb: Tuple[int, int, int]) -> None:
         """Set all key objects present to the provided color."""
-        tuple(map(self._set_key_color, self, repeat(rgb or kw_rgb)))
+        tuple(map(self._set_key_color, self, repeat(rgb)))
 
-    def _set_key_color(self, key: Key, rgb) -> None:
+    def _set_key_color(self, key: Key, rgb: Tuple[int, int, int]) -> None:
         key.set_color(rgb)
 
     def _color_data(self) -> None:
         """Construct final bytes to be written for static color selection."""
-        steps: list[list[int]] = list(self._colors["steps"])
+        steps: Tuple[List[int]] = self._colors["steps"]
+        #  The steps are the blank version of the data to be sent.
+
         for valid_key in self.valid_keys:
             key: Key = self._keys[valid_key]
 
@@ -132,11 +121,10 @@ class Keyboard:
                 steps[step_index][color_index] = color
 
         self._final_color_data: tuple[bytearray] = tuple(map(bytearray, steps))
-        ...
 
     def apply_color(
         self,
-        rgb: Optional[list[int]] = None,
+        rgb: Optional[Tuple[int, int, int]] = None,
     ) -> tuple[bytearray]:
         """
         Write the final data to the interface.
@@ -148,10 +136,8 @@ class Keyboard:
             self.set_color(rgb)
         self._color_data()
         for interface in hid.enumerate(self._vid, self._pid):
-            if (
-                interface["usage_page"] != self._model["usage_page"]
-                or interface["usage"] != self._model["usage"]
-            ):
+            if (interface["usage_page"] != self._model["usage_page"] or
+                    interface["usage"] != self._model["usage"]):
                 continue
             dev = hid.device()
             dev.open_path(interface["path"])
@@ -171,9 +157,10 @@ class Keyboard:
             break
         return self._final_color_data
 
-    def _construct_anim_params(
-        self, anim_name: str, options: Optional[dict] = None, kw_options: Optional[dict] = None
-    ) -> dict:
+    def _construct_anim_params(self,
+                               anim_name: str,
+                               options: Optional[dict] = None,
+                               kw_options: Optional[dict] = None) -> dict:
         """
         Construct new options with defaults for missing values.
 
@@ -181,10 +168,9 @@ class Keyboard:
         """
         if anim_name not in self._anims.keys():
             raise ValueError(
-                f"{anim_name} was not found in the profile of {self.name}."
-            )
-        options = options or kw_options or None
+                f"{anim_name} was not found in the profile of {self.name}.")
 
+        options = options or kw_options or None
         new_options: dict = {"animation": self._anims[anim_name]["value"]}
         if options is None:
             # Returns defaults for parameters with the animation value if no parameter is provided.
@@ -209,12 +195,14 @@ class Keyboard:
                 continue
 
             # Checks if provided value is a accepted parameter.
-            if callable(self.anim_params[key]["range"]):
-                is_valid = self.anim_params[key]["range"](options[key])
-            elif isinstance(self.anim_params[key]["range"], (tuple, list, range)):
-                is_valid = all(
-                    [value in self.anim_params[key]["range"] for value in options[key]]
-                )
+            if callable(self.anim_params[key]["checks"]):
+                is_valid = self.anim_params[key]["checks"](options[key])
+            elif isinstance(self.anim_params[key]["checks"],
+                            (tuple, list, range)):
+                is_valid = all([
+                    value in self.anim_params[key]["checks"]
+                    for value in options[key]
+                ])
 
             if is_valid is True:
                 new_options[key] = options[key]
@@ -235,33 +223,35 @@ class Keyboard:
     def set_animation(self, anim_name: str) -> None:
         ...
 
-    def set_animation(self, anim_name, options: Optional[dict] = None, **kw_options) -> None:
+    def set_animation(self,
+                      anim_name,
+                      options: Optional[dict] = None,
+                      **kw_options) -> None:
         """
         Set a specific animation with its parameters.
 
         Options can either be provided as a dictionary or via keywords, if no option is provided defaults will be used.
         If options are partially provided such as sleep but no speed setting. The default will be used to fill the rest in.
         """
-        new_options: dict = self._construct_anim_params(anim_name, options, kw_options)
+        new_options: dict = self._construct_anim_params(anim_name, options,
+                                                        kw_options)
         anim_data: list[int] = self._anim_base
         for option in new_options.values():
             anim_data.extend(option)
-        self._final_anim_data = bytearray(
-            anim_data + [*((65 - len(anim_data)) * [0x00])]
-        )
-        ...
+        self._final_anim_data = bytearray(anim_data +
+                                          [*((65 - len(anim_data)) * [0x00])])
 
     def apply_animation(self) -> bytearray:
         """Apply the set animation to the keyboard."""
+        if self._final_anim_data:
+            raise AnimationNotSet
         for interface in hid.enumerate():
-            if (
-                interface["usage_page"] != self._model["usage_page"]
-                or interface["usage"] != self._model["usage"]
-            ):
+            if (interface["usage_page"] != self._model["usage_page"] or
+                    interface["usage"] != self._model["usage"]):
                 continue
             dev = hid.device()
             dev.open_path(interface["path"])
-            report_type: int = self._colors["report_type"]
+            report_type: Literal[0x02, 0x03] = self._colors["report_type"]
             if report_type == 0x02:
                 dev.send_feature_report(self._final_anim_data)
             elif report_type == 0x03:
@@ -269,8 +259,9 @@ class Keyboard:
 
             dev.close()
             sleep(0.01)
-        return self._final_anim_data
-
+        data = self._final_anim_data
+        self._final_data = None
+        return data
 
 
 class KeyNotFoundError(Exception):
@@ -281,7 +272,16 @@ class KeyNotFoundError(Exception):
 
 
 class KeyboardNotFound(Exception):
+
     def __init__(self, vid: int, pid: int):
         super().__init__(
             f"Unable to find interface with the vendor id of {vid} and product id of {pid}."
+        )
+
+
+class AnimationNotSet(Exception):
+
+    def __init__(self):
+        super().__init__(
+            "No animation has been specified. Before calling this function you must set an animation using set_animation."
         )
