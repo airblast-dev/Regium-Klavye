@@ -1,0 +1,10 @@
+[tool.pyright]
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.11.3"
+pythonPlatform = "Linux"
+typeCheckingMode = "basic"
+
+[tool.yapf]
+based_on_style = "yapf"

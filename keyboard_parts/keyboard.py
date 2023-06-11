@@ -1,6 +1,6 @@
 from itertools import repeat
 from time import sleep
-from typing import overload
+from typing import Generator, overload, Optional
 from collections import deque
 
 import hid
@@ -34,7 +34,6 @@ class Keyboard:
         "long_name",
         "animations",
         "anim_params",
-        "previous_data",
         "_vid",
         "_pid",
         "_keys",
@@ -63,11 +62,8 @@ class Keyboard:
         self.anim_params: dict = _profile["commands"]["animations"]["animation_params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
         self._colors: dict = _profile["commands"]["colors"]
-        self._final_anim_data: Optional[bytearray] = None
-        self._final_color_data: Optional[list[bytearray]] = None
-        self.previous_data: deque[bytearray | list[bytearray]] = deque(
-            [None, None], maxlen=2
-        )
+        self._final_anim_data: bytearray
+        self._final_color_data: tuple[bytearray]
 
     def __len__(self) -> int:
         """Returns number of keys."""
@@ -82,7 +78,7 @@ class Keyboard:
         """
         return self._keys[key]
 
-    def __iter__(self) -> Key:
+    def __iter__(self) -> Generator:
         """Yields each key found on the keyboard."""
         yield from self._keys.values()
 
@@ -94,7 +90,7 @@ class Keyboard:
         ...
 
     @overload
-    def set_key_color(self, key: str, rgb: list[int, int, int]):
+    def set_key_color(self, key: str, rgb: list[int]):
         ...
 
     def set_key_color(self, key: str, *rgb, **kw_rgb) -> None:
@@ -106,7 +102,7 @@ class Keyboard:
         raise KeyNotFoundError(self.name, key)
 
     @overload
-    def set_color(self, rgb: list[int, int, int]):
+    def set_color(self, rgb: list[int]):
         ...
 
     @overload
@@ -122,7 +118,7 @@ class Keyboard:
 
     def _color_data(self) -> None:
         """Construct final bytes to be written for static color selection."""
-        steps: list[int] = list(self._colors["steps"])
+        steps: list[list[int]] = list(self._colors["steps"])
         for valid_key in self.valid_keys:
             key: Key = self._keys[valid_key]
 
@@ -136,16 +132,12 @@ class Keyboard:
                 steps[step_index][color_index] = color
 
         self._final_color_data: tuple[bytearray] = tuple(map(bytearray, steps))
-
-    @overload
-    def apply_color(self, rgb: list[int, int, int]) -> list[bytearray]:
         ...
 
     def apply_color(
         self,
-        rgb: list[int, int, int] = None,
-        _data: tuple[bytearray] = None,
-    ) -> list[bytearray]:
+        rgb: Optional[list[int]] = None,
+    ) -> tuple[bytearray]:
         """
         Write the final data to the interface.
 
@@ -166,7 +158,7 @@ class Keyboard:
             dev.set_nonblocking(True)
             report_type: int = self._colors["report_type"]
 
-            for data in _data or self._final_color_data:
+            for data in self._final_color_data:
                 if report_type == 0x02:
                     dev.send_feature_report(data)
                 elif report_type == 0x03:
@@ -177,11 +169,10 @@ class Keyboard:
 
             dev.close()
             break
-        self.previous_data.append(self._final_color_data)
         return self._final_color_data
 
     def _construct_anim_params(
-        self, anim_name: str, options: dict = None, kw_options: dict = None
+        self, anim_name: str, options: Optional[dict] = None, kw_options: Optional[dict] = None
     ) -> dict:
         """
         Construct new options with defaults for missing values.
@@ -197,10 +188,12 @@ class Keyboard:
         new_options: dict = {"animation": self._anims[anim_name]["value"]}
         if options is None:
             # Returns defaults for parameters with the animation value if no parameter is provided.
-            return new_options + {
+            default_options = {
                 param: param_inf["default"]
                 for param, param_inf in self.anim_params.items()
             }
+            new_options.update(default_options)
+            return new_options
 
         #  In some cases values provided can be a single number or list of values. This is to allow both parameter types.
         options = {
@@ -242,26 +235,23 @@ class Keyboard:
     def set_animation(self, anim_name: str) -> None:
         ...
 
-    def set_animation(self, anim_name, options: dict = None, **kw_options) -> None:
+    def set_animation(self, anim_name, options: Optional[dict] = None, **kw_options) -> None:
         """
         Set a specific animation with its parameters.
 
         Options can either be provided as a dictionary or via keywords, if no option is provided defaults will be used.
         If options are partially provided such as sleep but no speed setting. The default will be used to fill the rest in.
         """
-        options: dict = self._construct_anim_params(anim_name, options, kw_options)
+        new_options: dict = self._construct_anim_params(anim_name, options, kw_options)
         anim_data: list[int] = self._anim_base
-        for option in options.values():
+        for option in new_options.values():
             anim_data.extend(option)
-        self._final_anim_data: bytearray = bytearray(
+        self._final_anim_data = bytearray(
             anim_data + [*((65 - len(anim_data)) * [0x00])]
         )
-
-    @overload
-    def apply_animation(self) -> bytearray:
         ...
 
-    def apply_animation(self, _data: bytearray = None) -> bytearray:
+    def apply_animation(self) -> bytearray:
         """Apply the set animation to the keyboard."""
         for interface in hid.enumerate():
             if (
@@ -272,31 +262,15 @@ class Keyboard:
             dev = hid.device()
             dev.open_path(interface["path"])
             report_type: int = self._colors["report_type"]
-            data = _data or self._final_anim_data
             if report_type == 0x02:
-                dev.send_feature_report(data)
+                dev.send_feature_report(self._final_anim_data)
             elif report_type == 0x03:
-                dev.write(data)
+                dev.write(self._final_anim_data)
 
             dev.close()
-            if not _data:
-                self.previous_data.append(self._final_anim_data)
             sleep(0.01)
-            return data
+        return self._final_anim_data
 
-    def revert(self) -> bytearray | list[bytearray]:
-        """
-        Write previously written data back to keyboard.
-
-        This can be used to revert back from an animation or color setting.
-        """
-        if isinstance(self.previous_data[0], tuple):
-            self.apply_color(_data=self.previous_data[0])
-        elif isinstance(self.previous_data[0], bytearray):
-            self.apply_animation(_data=self.previous_data[0])
-        else:
-            raise Exception
-        return self.previous_data[0]
 
 
 class KeyNotFoundError(Exception):
