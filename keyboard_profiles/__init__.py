@@ -1,5 +1,5 @@
 from . import RK68
-from .profile import Profile
+from .profile_types import Profile, Model, Commands
 from typing import List, Tuple, Dict
 from types import ModuleType
 
@@ -18,7 +18,7 @@ def _create_profiles() -> Dict[Tuple[int, int], Profile]:
     return profiles
 
 
-def get_profile(vid: int, pid: int) -> Dict[Tuple[int, int], Profile]:
+def get_profile(vid: int, pid: int) -> Profile:
     return PROFILES[(vid, pid)]
 
 
