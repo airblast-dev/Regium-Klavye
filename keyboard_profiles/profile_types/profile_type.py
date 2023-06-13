@@ -1,6 +1,6 @@
-from typing import TypedDict, List, Tuple, Dict
-from commands import Commands
-from model import Model
+from typing import TypedDict, List, Tuple
+from .commands import Commands
+from .model import Model
 
 #  This is not used in the application or testing.
 #  It serves as an example structure for development purposes.

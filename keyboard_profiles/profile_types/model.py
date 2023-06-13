@@ -8,7 +8,7 @@ class Model(TypedDict):
 
     long_name: str
     #  Long name represents a more specific name for the device.
-    #  This includes special editions and specific connection protocols.
+    #  This includes special editions and/or specific connection protocols.
 
     connection_protocols: List[str]
     #  This is for different connection protocols such as USB, BT and or 2.4GHz.
