@@ -10,8 +10,9 @@ from keyboard_parts import Keyboard, KeyboardNotFound
 from keyboard_profiles import PROFILES
 
 
-def get_keyboards(vid: Optional[int] = None,
-                  pid: Optional[int] = None) -> list[Keyboard]:
+def get_keyboards(
+    vid: Optional[int] = None, pid: Optional[int] = None
+) -> list[Keyboard]:
     """
     Returns a list of Keyboards for supported keyboards.
 
@@ -31,10 +32,11 @@ def get_keyboards(vid: Optional[int] = None,
         if dev_profile is None:
             continue
         for model in dev_profile["models"]:
-            if (model["usage"] == device["usage"] and
-                    model["usage_page"] == device["usage_page"]):
-                keyboards.append(
-                    Keyboard(device["vendor_id"], device["product_id"]))
+            if (
+                model["usage"] == device["usage"]
+                and model["usage_page"] == device["usage_page"]
+            ):
+                keyboards.append(Keyboard(device["vendor_id"], device["product_id"]))
     if not keyboards:
         raise NoKeyboardsFound()
 
@@ -52,23 +54,15 @@ def get_keyboard(vid: int, pid: int) -> Keyboard:
         if dev_profile is None:
             continue
         for model in dev_profile["models"]:
-            if (model["usage"] == device["usage"] and
-                    model["usage_page"] == device["usage_page"]):
+            if (
+                model["usage"] == device["usage"]
+                and model["usage_page"] == device["usage_page"]
+            ):
                 return Keyboard(device["vendor_id"], device["product_id"])
     raise KeyboardNotFound(vid, pid)
 
 
 class NoKeyboardsFound(Exception):
-
     def __init__(self) -> None:
         super().__init__(f"Unable to find any supported keyboards.")
 
-
-from time import sleep
-from timeit import timeit
-
-kb: Keyboard = get_keyboards()[0]
-
-x = timeit("kb.set_color((100,0,0))", globals=globals(), number=100)
-y = timeit("kb.apply_color((100,0,0))", globals=globals(), number=100)
-print(x + y)
