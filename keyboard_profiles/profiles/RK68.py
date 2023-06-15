@@ -1,16 +1,17 @@
 profile = {
-    "name":
-        "Royal Kludge RK68",
-    "models": ({
-        "name": "Royal Kludge RK68",
-        "long_name": "Royal Kludge RK68 BT and USB",
-        "connection_protocols": ("USB", "BT"),
-        "vendor_id": 0x0258A,
-        "product_id": 0x005E,
-        "endpoint": 0x00,
-        "usage": 128,
-        "usage_page": 1,
-    },),
+    "name": "Royal Kludge RK68",
+    "models": (
+        {
+            "name": "Royal Kludge RK68",
+            "long_name": "Royal Kludge RK68 BT and USB",
+            "connection_protocols": ("USB", "BT"),
+            "vendor_id": 0x0258A,
+            "product_id": 0x005E,
+            "endpoint": 0x00,
+            "usage": 128,
+            "usage_page": 1,
+        },
+    ),
     "commands": {
         "colors": {
             "label": "RGB settings",
@@ -30,37 +31,21 @@ profile = {
             "base": [0x0A, 0x01, 0x01, 0x02, 0x29],
             "report_type": 0x02,
             "animation_options": {
-                "neon_stream": {
-                    "name": "Neon Stream",
-                    "value": [0x01, 0x00]
-                },
-                "sin_wave": {
-                    "name": "Sin Wave",
-                    "value": [0x04, 0x00]
-                },
+                "neon_stream": {"name": "Neon Stream", "value": [0x01, 0x00]},
+                "sin_wave": {"name": "Sin Wave", "value": [0x04, 0x00]},
             },
             "animation_params": {
                 #  Animation options will be combined with the same ordered defined here.
                 #  For range key values a callable that returns a boolean value, a Sequence of accepted values or a range can be provided.
-                "speed": {
-                    "checks": range(0x00, 0x06),
-                    "default": [0x03]
-                },
-                "brightness": {
-                    "checks": range(0x00, 0x06),
-                    "default": [0x05]
-                },
+                "speed": {"checks": range(0x00, 0x06), "default": [0x03]},
+                "brightness": {"checks": range(0x00, 0x06), "default": [0x05]},
                 "color": {
-                    "checks":
-                        lambda colors: all([
-                            0x00 <= color and color <= 0xFF for color in colors
-                        ]),
+                    "checks": lambda colors: all(
+                        [0x00 <= color and color <= 0xFF for color in colors]
+                    ),
                     "default": [0xFF, 0xFF, 0xFF],
                 },
-                "color_mix": {
-                    "checks": [0x00, 0x01],
-                    "default": [0x00]
-                },
+                "color_mix": {"checks": [0x00, 0x01], "default": [0x00]},
                 "sleep": {
                     "checks": range(0x00, 0x05),
                     "default": [0x00],
