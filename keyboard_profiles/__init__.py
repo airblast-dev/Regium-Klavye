@@ -1,21 +1,29 @@
-from . import RK68
 from .profile_types import Profile, Model, Commands
 from typing import List, Tuple, Dict
-from types import ModuleType
+
+_profiles = dict()
 
 
+#  This used to work via importing  the profiles and then calling globals.
+#  This caused bad performance as a bunch of checks had to be done while contstructing PROFILE.
+#  It also removed the need to use the types module which also affects performance and uses ~0.2 Mb of RAM.
+#  The main benefit is that this solution allows for more flexability when it comes to imports and etc.
 def _create_profiles() -> Dict[Tuple[int, int], Profile]:
-    profiles = {}
-    for item in [globals()[name] for name in globals()]:
-        if not isinstance(item, ModuleType):
-            continue
-        if not hasattr(item, "profile"):
-            continue
-        for model in item.profile["models"]:
-            profile: Profile = item.profile.copy()
-            vid_pid: Tuple[int, int] = (model["vendor_id"], model["product_id"])
-            profiles[vid_pid] = profile
-    return profiles
+    from .profiles import RK68
+
+    #  All profiles should be imported above.
+
+    local_imports = locals()
+    #  Take locals right after import so we can use create and use other variables.
+
+    _profiles: dict[Tuple[int, int], Profile] = dict()
+
+    #  The for loop iterates every module imported. Which we then call getattr to get the profile variable inside.
+    for module in local_imports.values():
+        profile: Profile = module.profile
+        for model in profile["models"]:
+            _profiles[(model["vendor_id"], model["product_id"])] = profile
+    return _profiles
 
 
 def get_profile(vid: int, pid: int) -> Profile:
