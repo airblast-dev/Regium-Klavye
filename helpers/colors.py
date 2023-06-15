@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple, Optional
+from typing import Sequence, Tuple
 
 
 def color_check(rgb: Tuple[int, int, int]) -> None:
