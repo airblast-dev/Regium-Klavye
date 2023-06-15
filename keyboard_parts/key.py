@@ -1,5 +1,5 @@
 from typing import Sequence, overload, Optional, Tuple
-from helpers.colors import color_check
+from helpers import color_check
 
 
 class Key:
@@ -23,20 +23,19 @@ class Key:
     __slots__ = ("label", "_rgb", "_indexes")
 
     def __init__(
-            self,
-            label: str,
-            indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]],
-            rgb: Tuple[int, int, int] = (0, 0, 0),
+        self,
+        label: str,
+        indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]],
+        rgb: Tuple[int, int, int] = (0, 0, 0),
     ):
         if type(label) is not str:
-            raise TypeError(
-                f"Expected string as key label, {type(label)} was found.")
+            raise TypeError(f"Expected string as key label, {type(label)} was found.")
         self.label: str = label
         self.rgb = rgb
         self.set_color(rgb)
         self.indexes = indexes
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Key(label="{self.label}", rgb={self.rgb}, indexes={self.indexes})'
 
     def set_color(self, rgb: Tuple[int, int, int]) -> None:
@@ -56,28 +55,26 @@ class Key:
         self._rgb: Tuple[int, int, int] = val
 
     @property
-    def indexes(
-            self) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
+    def indexes(self) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
         return self._indexes
 
     @indexes.setter
     def indexes(
-        self, indexes: Tuple[Tuple[int, int], Tuple[int, int],
-                             Tuple[int, int]]) -> None:
+        self, indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]
+    ) -> None:
         if not isinstance(indexes, (tuple, list)):
             raise TypeError(f"Expected list or tuple, found {type(indexes)}.")
         if len(indexes) != 3:
-            raise ValueError(
-                f"Expected 3 values in indexes, found {len(indexes)}.")
+            raise ValueError(f"Expected 3 values in indexes, found {len(indexes)}.")
         for index in indexes:
             if not isinstance(index, (tuple, list)):
                 raise TypeError(f"Expected list or tuple, found {type(index)}.")
             if len(index) != 2:
-                raise ValueError(
-                    f"Expected 2 values in index, found {len(index)}.")
+                raise ValueError(f"Expected 2 values in index, found {len(index)}.")
             if not all(map(lambda val: type(val) is int, index)):
                 types = (type(index[0]), type(index[1]))
                 raise TypeError(f"Expected 2 int's in index found {types}.")
 
-        self._indexes: Tuple[Tuple[int, int], Tuple[int, int],
-                             Tuple[int, int]] = indexes
+        self._indexes: Tuple[
+            Tuple[int, int], Tuple[int, int], Tuple[int, int]
+        ] = indexes
