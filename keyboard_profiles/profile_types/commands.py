@@ -1,4 +1,14 @@
-from typing import TypedDict, List, Tuple, Literal, Union, Callable, NotRequired, Dict, OrderedDict
+from typing import (
+    TypedDict,
+    List,
+    Tuple,
+    Literal,
+    Union,
+    Callable,
+    NotRequired,
+    Dict,
+    OrderedDict,
+)
 
 
 class Colors(TypedDict):
@@ -16,7 +26,6 @@ class Colors(TypedDict):
 
 
 class AnimationOption(TypedDict):
-
     name: str
     # Animation name...
 
