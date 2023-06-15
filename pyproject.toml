@@ -4,7 +4,3 @@ reportMissingTypeStubs = false
 
 pythonVersion = "3.11.3"
 typeCheckingMode = "basic"
-
-[tool.yapf]
-based_on_style = "yapf"
-indent_width = 4
