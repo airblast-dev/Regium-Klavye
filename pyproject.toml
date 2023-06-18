@@ -4,3 +4,12 @@ reportMissingTypeStubs = false
 
 pythonVersion = "3.11.3"
 typeCheckingMode = "basic"
+
+[tool.black]
+target-version = ["py311"]
+include = '''
+(
+  ^.*\.py
+  | ^.*\.pyx
+)
+'''
