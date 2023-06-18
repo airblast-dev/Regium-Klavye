@@ -28,12 +28,9 @@ class Key:
         indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]],
         rgb: Tuple[int, int, int] = (0, 0, 0),
     ):
-        if type(label) is not str:
-            raise TypeError(f"Expected string as key label, {type(label)} was found.")
         self.label: str = label
-        self.rgb = rgb
-        self.set_color(rgb)
         self.indexes = indexes
+        self.rgb = rgb
 
     def __repr__(self) -> str:
         return f'Key(label="{self.label}", rgb={self.rgb}, indexes={self.indexes})'
