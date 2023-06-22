@@ -1,5 +1,6 @@
 profile = {
     "name": "Royal Kludge RK68",
+    "kb_size": (16, 5),
     "models": (
         {
             "name": "Royal Kludge RK68",
@@ -58,6 +59,8 @@ profile = {
     #  Each value is stored as label (red index, green index, blue index)
     #  For some keys the red or blue value can be at a previous or next step which is why the step index has to be stored with each value.
     "present_keys": (
+        # fmt: off
+        #  label, color_indexes, size
         ("ESC", ((0, 9), (0, 10), (0, 11))),
         ("TAB", ((0, 12), (0, 13), (0, 14))),
         ("CPS", ((0, 15), (0, 16), (0, 17))),
@@ -126,5 +129,22 @@ profile = {
         ("PGUP", ((4, 37), (4, 38), (4, 39))),
         ("PGDWN", ((4, 40), (4, 41), (4, 42))),
         ("RIAR", ((4, 43), (4, 44), (4, 45))),
+        # fmt: on
+    ),
+    #  The is structured like this to allow keyboards with space between keys.
+    #  Spaces between keys are defined by their first value in the tuple being None and the next value being its width in units.
+    #  All key heights are set as 1. In case a key height is more than 1, it can be written again, under or over it in order to extend its size.
+    #  For non rectangle keys the same key label with different sizing can be used in order to create them.
+    #  For example ISO layout enter key:
+    #
+    #  Below each key line represents a row of keys on a keyboard.
+    "layout": (
+        # fmt: off
+        ("ESC", 1), ("1", 1), ("2", 1), ("3", 1), ("4", 1), ("5", 1), ("6", 1), ("7", 1), ("8", 1), ("9", 1), ("0", 1), ("-", 1), ("=", 1), ("BCK", 2), ("`", 1),
+        ("TAB", 1.5), ("Q", 1), ("W", 1), ("E", 1), ("R", 1), ("T", 1), ("Y", 1), ("U", 1), ("I", 1), ("O", 1), ("P", 1), ("[", 1), ("]", 1), ("\\", 1.5), ("DEL", 1),
+        ("CPS", 1.75), ("A", 1), ("S", 1), ("D", 1), ("F", 1), ("G", 1), ("H", 1), ("J", 1), ("K", 1), ("L", 1), (";", 1), ("'", 1), ("ENTR", 2.25), ("PGUP", 1),
+        ("LSHFT", 2.25), ("Z", 1), ("X", 1), ("C", 1), ("V", 1), ("B", 1), ("N", 1), ("M", 1), (",", 1), (".", 1), ("/", 1), ("RSHFT", 1.75), ("UPAR", 1), ("PGDWN", 1),
+        ("LCTRL", 1.25), ("SPR", 1.25), ("LALT", 1.25), ("SPC", 6.25), ("RALT", 1), ("FN", 1), ("RCTRL", 1), ("LEAR", 1), ("DOAR", 1), ("RIAR", 1),
+        # fmt: on
     ),
 }
