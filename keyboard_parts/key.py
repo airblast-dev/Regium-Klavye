@@ -1,4 +1,3 @@
-from typing import Sequence, overload, Optional, Tuple
 from helpers import color_check
 
 
@@ -25,8 +24,8 @@ class Key:
     def __init__(
         self,
         label: str,
-        indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]],
-        rgb: Tuple[int, int, int] = (0, 0, 0),
+        indexes: tuple[tuple[int, int], tuple[int, int], tuple[int, int]],
+        rgb: tuple[int, int, int] = (0, 0, 0),
     ):
         self.label: str = label
         self.indexes = indexes
@@ -35,29 +34,29 @@ class Key:
     def __repr__(self) -> str:
         return f'Key(label="{self.label}", rgb={self.rgb}, indexes={self.indexes})'
 
-    def set_color(self, rgb: Tuple[int, int, int]) -> None:
+    def set_color(self, rgb: tuple[int, int, int]) -> None:
         color_check(rgb)
         self._rgb = rgb
 
-    def get_color(self) -> Tuple[int, int, int]:
+    def get_color(self) -> tuple[int, int, int]:
         return self._rgb
 
     @property
-    def rgb(self) -> Tuple[int, int, int]:
+    def rgb(self) -> tuple[int, int, int]:
         return self._rgb
 
     @rgb.setter
-    def rgb(self, val: Tuple[int, int, int]) -> None:
+    def rgb(self, val: tuple[int, int, int]) -> None:
         color_check(val)
-        self._rgb: Tuple[int, int, int] = val
+        self._rgb: tuple[int, int, int] = val
 
     @property
-    def indexes(self) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
+    def indexes(self) -> tuple[tuple[int, int], tuple[int, int], tuple[int, int]]:
         return self._indexes
 
     @indexes.setter
     def indexes(
-        self, indexes: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]
+        self, indexes: tuple[tuple[int, int], tuple[int, int], tuple[int, int]]
     ) -> None:
         if not isinstance(indexes, (tuple, list)):
             raise TypeError(f"Expected list or tuple, found {type(indexes)}.")
@@ -72,6 +71,6 @@ class Key:
                 types = (type(index[0]), type(index[1]))
                 raise TypeError(f"Expected 2 int's in index found {types}.")
 
-        self._indexes: Tuple[
-            Tuple[int, int], Tuple[int, int], Tuple[int, int]
+        self._indexes: tuple[
+            tuple[int, int], tuple[int, int], tuple[int, int]
         ] = indexes

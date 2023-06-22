@@ -1,7 +1,4 @@
-from typing import Sequence, Tuple
-
-
-def color_check(rgb: Tuple[int, int, int]) -> None:
+def color_check(rgb: tuple[int, int, int]) -> None:
     """
     Checks if three values were provided. Raises ValueError if any number of items other than 3 is provided.
 

@@ -5,13 +5,12 @@ A simple API to control settings related to RGB and keybindings for supported ke
 """
 
 import hid
-from typing import Optional
 from keyboard_parts import Keyboard, KeyboardNotFound
 from keyboard_profiles import PROFILES
 
 
 def get_keyboards(
-    vid: Optional[int] = None, pid: Optional[int] = None
+    vid: int | None = None, pid: int | None = None
 ) -> list[Keyboard]:
     """
     Returns a list of Keyboards for supported keyboards.
@@ -65,4 +64,3 @@ def get_keyboard(vid: int, pid: int) -> Keyboard:
 class NoKeyboardsFound(Exception):
     def __init__(self) -> None:
         super().__init__(f"Unable to find any supported keyboards.")
-

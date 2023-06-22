@@ -8,7 +8,7 @@ _profiles = dict()
 #  This caused bad performance as a bunch of checks had to be done while contstructing PROFILE.
 #  It also removed the need to use the types module which also affects performance and uses ~0.2 Mb of RAM.
 #  The main benefit is that this solution allows for more flexability when it comes to imports and etc.
-def _create_profiles() -> Dict[Tuple[int, int], Profile]:
+def _create_profiles() -> dict[tuple[int, int], Profile]:
     from .profiles import RK68
 
     #  All profiles should be imported above.
@@ -16,7 +16,7 @@ def _create_profiles() -> Dict[Tuple[int, int], Profile]:
     local_imports = locals()
     #  Take locals right after import so we can use create and use other variables.
 
-    _profiles: dict[Tuple[int, int], Profile] = dict()
+    _profiles: dict[tuple[int, int], Profile] = dict()
 
     #  The for loop iterates every module imported. Which we then call getattr to get the profile variable inside.
     for module in local_imports.values():
