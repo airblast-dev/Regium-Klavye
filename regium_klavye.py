@@ -1,13 +1,13 @@
 """
+Regium Klavye 
+
 A simple API to control settings related to RGB and keybindings for supported keyboards.
 
 
 """
-
 import hid
 from keyboard_parts import Keyboard, KeyboardNotFound
 from keyboard_profiles import PROFILES
-
 
 def get_keyboards(
     vid: int | None = None, pid: int | None = None
