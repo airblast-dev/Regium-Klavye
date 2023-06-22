@@ -209,7 +209,7 @@ class Keyboard:
         return new_options
 
     @overload
-    def set_animation(self, anim_name: str, options: Optional[dict[str, int]]) -> None:
+    def set_animation(self, anim_name: str, options: dict[str, int] | None) -> None:
         ...
 
     @overload
