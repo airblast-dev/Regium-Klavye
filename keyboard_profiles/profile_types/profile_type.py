@@ -14,6 +14,4 @@ class Profile(TypedDict):
     present_keys: Tuple[
         Tuple[str, Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]], ...
     ]
-    layout: NotRequired[Tuple[
-        Tuple[str | None, int], ...
-    ]]
+    layout: NotRequired[Tuple[Tuple[str | None, int], ...]]
