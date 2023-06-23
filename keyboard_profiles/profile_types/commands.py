@@ -8,7 +8,26 @@ from typing import (
     NotRequired,
     Dict,
     OrderedDict,
+    Sequence,
 )
+
+
+class ColorParam(TypedDict):
+    checks: Union[Callable[[List[int]], bool], List[int], range]
+    #  Check to be done to confirm provided value is valid.
+
+    default: List[int]
+    #  Default value for when one is not provided.
+
+    valid_values: Tuple[int, ...]
+    #  Tuple of valid values to be used as feedback.
+
+
+class ColorParams(TypedDict):
+    base: List[int]
+    #  Base data to add param on top of.
+
+    params: OrderedDict[str, ColorParam]
 
 
 class Colors(TypedDict):
@@ -18,11 +37,13 @@ class Colors(TypedDict):
     description: str
     #  A sentence or so long, short description.
 
-    steps: Tuple[List[int]]
+    steps: List[List[int]]
     #  Base color values. By default all colors are zero/off.
 
     report_type: Literal[0x02, 0x03]
     # Feature report = 0x02, Write = 0x03
+
+    color_params: ColorParams
 
 
 class AnimationOption(TypedDict):
@@ -33,7 +54,7 @@ class AnimationOption(TypedDict):
     # The value that will be added once selected.
 
 
-class AnimationParam(OrderedDict):
+class AnimationParam(TypedDict):
     checks: Union[Callable[[List[int]], bool], List[int], range]
     #  If a callable is provided it is used
     #  by providing the value that will be checked as argument.
@@ -41,6 +62,9 @@ class AnimationParam(OrderedDict):
 
     default: List[int]
     #  Default values to be used where non is provided.
+
+    valid_values: Tuple[int, ...]
+    #  Tuple of valid values to be used as feedback.
 
 
 class Animations(TypedDict):
@@ -50,11 +74,11 @@ class Animations(TypedDict):
     report_type: Literal[0x02, 0x03]
     # Feature report = 0x02, Write = 0x03
 
-    animation_options: Dict[str, AnimationOption]
+    options: Dict[str, AnimationOption]
     #  Animation options available for the keyboard.
     #  This is only for non-custom animations and effects.
 
-    animation_params: Dict[str, AnimationParam]
+    params: Dict[str, AnimationParam]
     #  Their definition should be the same with
     #  the order they will be combined.
 
