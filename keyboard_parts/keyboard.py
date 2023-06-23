@@ -4,8 +4,9 @@ from typing import Iterator, overload
 
 import hid
 
-from .key import Key
+from keyboard_parts import Key
 from keyboard_profiles import PROFILES
+from helpers import parse_params
 
 
 class Keyboard:
@@ -34,6 +35,10 @@ class Keyboard:
         "_anim_base",
         "_anims",
         "_layout",
+        "_color_param_base",
+        "color_params",
+        "_current_color_params",
+        "_color_params",
     )
 
     def __init__(self, vid: int, pid: int):
@@ -55,14 +60,19 @@ class Keyboard:
         self.valid_keys = sorted(self._keys.keys())
         self.long_name = self._model["long_name"]
 
-        self._anims = _profile["commands"]["animations"]["animation_options"]
-        self.animations = sorted(self._anims.keys())
-        self.anim_params = _profile["commands"]["animations"]["animation_params"]
+        self._anims = _profile["commands"]["animations"]["options"]
+        self.anim_params = _profile["commands"]["animations"]["params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
         self._final_anim_data: bytearray
         self._final_color_data: tuple[bytearray, ...]
         self._colors = _profile["commands"]["colors"]
+        self._color_param_base = _profile["commands"]["colors"]["color_params"]["base"]
+        self.color_params = tuple(
+            sorted(_profile["commands"]["colors"]["color_params"]["params"].keys())
+        )
+        self._color_params = _profile["commands"]["colors"]["color_params"]["params"]
         self._kb_size = _profile["kb_size"]
+        self._current_color_params: dict[str, list[int]] = {}
 
     def __len__(self) -> int:
         """Returns number of keys."""
@@ -94,9 +104,12 @@ class Keyboard:
         for key in self:
             key.set_color(rgb)
 
+    def set_color_params(self, options: dict[str, int]):
+        self._current_color_params = parse_params(options, self._color_params)
+
     def _color_data(self) -> None:
         """Construct final bytes to be written for static color selection."""
-        steps: tuple[list[int]] = self._colors["steps"]
+        steps: list[list[int]] = self._colors["steps"]
         #  The steps are the blank version of the data to be sent.
 
         for valid_key in self.valid_keys:
@@ -110,6 +123,11 @@ class Keyboard:
                 step_index = indexes[0]
                 color_index = indexes[1]
                 steps[step_index][color_index] = color
+        param_base = self._colors["color_params"]["base"]
+        new_param = list(param_base)
+        for param in self._current_color_params.values():
+            new_param += param
+        steps.append(new_param)
 
         self._final_color_data: tuple[bytearray, ...] = tuple(map(bytearray, steps))
 
@@ -150,77 +168,10 @@ class Keyboard:
             break
         return self._final_color_data
 
-    def _construct_anim_params(
-        self,
-        anim_name: str,
-        options: dict[str, int] | None = None,
-        kw_options: dict[str, int] | None = None,
-    ) -> dict:
-        """
-        Construct new options with defaults for missing values.
-
-        This will also check if provided values are in valid range for said parameter.
-        """
-        if anim_name not in self._anims.keys():
-            raise ValueError(
-                f"{anim_name} was not found in the profile of {self.name}."
-            )
-        temp_options: dict[str, int] | None = options or kw_options or None
-        new_options: dict[str, list[int]] = {
-            "animation": self._anims[anim_name]["value"]
-        }
-        if temp_options is None:
-            # Returns defaults for parameters with the animation value if no parameter is provided.
-            default_options: dict[str, list[int]] = {
-                param: param_inf["default"]
-                for param, param_inf in self.anim_params.items()
-            }
-            new_options.update(default_options)
-            return new_options
-
-        #  In some cases values provided can be a single number or list of values. This is to allow both parameter types.
-        _options: dict[str, list[int]] = {
-            key: [value] for key, value in temp_options.items()
-        }
-
-        # Fill in missing values with defaults. This also does this in the correct order defined in profiles.
-        for key in self.anim_params.keys():
-            is_valid: bool = False
-            if key not in _options.keys():
-                new_options[key] = self.anim_params[key]["default"]
-                continue
-
-            # Checks if provided value is in accepted parameter.
-            if callable(self.anim_params[key]["checks"]):
-                is_valid = self.anim_params[key]["checks"](_options[key])
-            elif isinstance(self.anim_params[key]["checks"], (tuple, list, range)):
-                is_valid = all(
-                    [
-                        value in self.anim_params[key]["checks"]
-                        for value in _options[key]
-                    ]
-                )
-
-            if is_valid is True:
-                new_options[key] = _options[key]
-                continue
-            raise ValueError(f"Invalid value provided for {key}.")
-
-        return new_options
-
-    @overload
-    def set_animation(self, anim_name: str, options: dict[str, int] | None) -> None:
-        ...
-
-    @overload
-    def set_animation(self, anim_name: str, **kw_options) -> None:
-        ...
-
     def set_animation(
         self,
         anim_name: str,
         options: dict[str, int] | None = None,
-        **kw_options,
     ) -> None:
         """
         Set a specific animation with its parameters.
@@ -230,19 +181,21 @@ class Keyboard:
 
         Keyword arguments should be only used when you already know the keyboard supports said parameter.
         """
-        new_options: dict[str, list[int]] = self._construct_anim_params(
-            anim_name, options, kw_options
-        )
+
+        new_options = {"base": self._anims[anim_name]["value"]}
+        new_options.update(parse_params(options, self.anim_params))
+
         anim_data: list[int] = self._anim_base
         for option in new_options.values():
             anim_data.extend(option)
+
         self._final_anim_data = bytearray(
             anim_data + [*((65 - len(anim_data)) * [0x00])]
         )
 
     def apply_animation(self) -> bytearray:
         """Apply the previously set animation to the keyboard."""
-        if self._final_anim_data:
+        if not self._final_anim_data:
             raise AnimationNotSet
         for interface in hid.enumerate():
             if (
