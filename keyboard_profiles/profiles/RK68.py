@@ -14,10 +14,11 @@ profile = {
         },
     ),
     "commands": {
+        # fmt: off
         "colors": {
             "label": "RGB settings",
             "description": "Set RGB values for keys",
-            "steps": (
+            "steps": [
                 [0x0A, 0x07, 0x01, 0x03, 0x7E, 0x01, *[0x00] * 59],
                 [0x0A, 0x07, 0x02, *[0x00] * 62],
                 [0x0A, 0x07, 0x03, *[0x00] * 62],
@@ -25,20 +26,30 @@ profile = {
                 [0x0A, 0x07, 0x05, *[0x00] * 62],
                 [0x0A, 0x07, 0x06, *[0x00] * 62],
                 [0x0A, 0x07, 0x07, *[0x00] * 62],
-            ),
+            ],
             "report_type": 0x02,
+            "color_params": {
+                "base": [0x0A, 0x01, 0x01, 0x02, 0x29, 0x0E, 0x00, 0x04, 0x05, 0x00, 0xFF, 0x00],
+                "params":{
+                    "sleep": {
+                        "checks": range(0x01, 0x06),
+                        "default": [0x01],
+                        "valid_values": (0x01, 0x02, 0x03, 0x04, 0x05),
+                    }
+                }
+            },
         },
         "animations": {
             "base": [0x0A, 0x01, 0x01, 0x02, 0x29],
             "report_type": 0x02,
-            "animation_options": {
+            "options": {
                 "neon_stream": {"name": "Neon Stream", "value": [0x01, 0x00]},
                 "sin_wave": {"name": "Sin Wave", "value": [0x04, 0x00]},
             },
-            "animation_params": {
+            "params": {
                 #  Animation options will be combined with the same ordered defined here.
                 #  For range key values a callable that returns a boolean value, a Sequence of accepted values or a range can be provided.
-                "speed": {"checks": range(0x00, 0x06), "default": [0x03]},
+                "speed": {"checks": range(0x00, 0x05), "default": [0x03]},
                 "brightness": {"checks": range(0x00, 0x06), "default": [0x05]},
                 "color": {
                     "checks": lambda colors: all(
@@ -55,6 +66,7 @@ profile = {
                 },
             },
         },
+        # fmt: on
     },
     #  Each value is stored as label (red index, green index, blue index)
     #  For some keys the red or blue value can be at a previous or next step which is why the step index has to be stored with each value.
