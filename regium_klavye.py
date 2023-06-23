@@ -9,9 +9,8 @@ import hid
 from keyboard_parts import Keyboard, KeyboardNotFound
 from keyboard_profiles import PROFILES
 
-def get_keyboards(
-    vid: int | None = None, pid: int | None = None
-) -> list[Keyboard]:
+
+def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboard]:
     """
     Returns a list of Keyboards for supported keyboards.
 
