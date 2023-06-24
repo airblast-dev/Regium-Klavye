@@ -92,8 +92,11 @@ class Keyboard:
     def color_param_choices(self) -> dict[str, tuple[int, ...]]:
         return {k: v["choices"] for k, v in self._color_params.items()}
 
-    def get_choice(self, param: str) -> tuple[int, ...]:
+    def get_anim_choice(self, param: str) -> tuple[int, ...]:
         return self._anim_params[param]["choices"]
+
+    def get_param_choice(self, param: str) -> tuple[int, ...]:
+        return self._color_params[param]["choices"]
 
     def __len__(self) -> int:
         """Returns number of keys."""
