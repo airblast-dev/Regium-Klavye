@@ -81,21 +81,13 @@ class Keyboard:
         return sorted(self._keys.keys())
 
     @property
-    def anim_params(self) -> list[str]:
-        return list(self._anim_params.keys())
-
-    @property
     def anim_options(self) -> list[str]:
         return sorted(self._anim_options.keys())
 
     @property
-    def color_params(self) -> list[str]:
-        return sorted(self._color_params.keys())
-
-    @property
     def anim_param_choices(self) -> dict[str, tuple[int, ...]]:
         return {k: v["choices"] for k, v in self._anim_params.items()}
-    
+
     @property
     def color_param_choices(self) -> dict[str, tuple[int, ...]]:
         return {k: v["choices"] for k, v in self._color_params.items()}
