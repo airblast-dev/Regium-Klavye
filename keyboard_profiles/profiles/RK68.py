@@ -34,7 +34,7 @@ profile = {
                     "sleep": {
                         "checks": range(0x01, 0x06),
                         "default": [0x01],
-                        "valid_values": (0x01, 0x02, 0x03, 0x04, 0x05),
+                        "choices": (0x01, 0x02, 0x03, 0x04, 0x05),
                     }
                 }
             },
@@ -50,20 +50,22 @@ profile = {
             "params": {
                 #  Animation options will be combined with the same ordered defined here.
                 #  For range key values a callable that returns a boolean value, a Sequence of accepted values or a range can be provided.
-                "speed": {"checks": range(0x00, 0x05), "default": [0x03]},
-                "brightness": {"checks": range(0x00, 0x06), "default": [0x05]},
+                "speed": {"checks": range(0x00, 0x05), "default": [0x03], "choices": (0x00, 0x01, 0x02, 0x03, 0x04)},
+                "brightness": {"checks": range(0x00, 0x06), "default": [0x05], "choices": (0x00, 0x01, 0x02, 0x03, 0x04, 0x05)},
                 "color": {
                     "checks": lambda colors: all(
                         [0x00 <= color and color <= 0xFF for color in colors]
                     ),
                     "default": [0xFF, 0xFF, 0xFF],
+                    "choices": (0x00, 0xff)
                 },
-                "color_mix": {"checks": [0x00, 0x01], "default": [0x00]},
+                "color_mix": {"checks": [0x00, 0x01], "default": [0x00]}, "choices": (True, False),
                 "sleep": {
                     "checks": range(0x00, 0x05),
                     "default": [0x00],
                     "increments": 10,
                     "unit": "minutes",
+                    "choices": (0x00, 0x01, 0x02, 0x03, 0x04)
                 },
             },
             "padding": 65

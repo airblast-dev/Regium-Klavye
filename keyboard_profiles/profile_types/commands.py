@@ -16,12 +16,15 @@ class ColorParam(TypedDict):
     valid_values: tuple[int, ...]
     #  Tuple of valid values to be used as feedback.
 
+    choices: tuple[int, ...]
+    #  Accepted choices for this parameter.
+
 
 class ColorParams(TypedDict):
     base: list[int]
     #  Base data to add param on top of.
 
-    params: OrderedDict[str, ColorParam]
+    params: dict[str, ColorParam]
 
 
 class Colors(TypedDict):
@@ -60,8 +63,8 @@ class AnimationParam(TypedDict):
     default: list[int]
     #  Default values to be used where non is provided.
 
-    valid_values: tuple[int, ...]
-    #  Tuple of valid values to be used as feedback.
+    choices: tuple[int, ...]
+    #  Accepted choices for this parameter.
 
 
 class Animations(TypedDict):
