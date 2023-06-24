@@ -56,7 +56,6 @@ class Keyboard:
             if model["vendor_id"] == self._vid and model["product_id"] == self._pid:
                 self._model = model
 
-
         self._anims = _profile["commands"]["animations"]["options"]
         self._anim_params = _profile["commands"]["animations"]["params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
@@ -69,31 +68,31 @@ class Keyboard:
         self._current_color_params: dict[str, list[int]] = {}
         self._color_padding = self._colors["padding"]
         self._anim_padding = _profile["commands"]["animations"]["padding"]
-    
+
     @property
     def name(self) -> str:
         return self._name
-    
+
     @property
     def long_name(self) -> str:
         return self._model["long_name"]
-    
+
     @property
     def valid_keys(self) -> list[str]:
         return sorted(self._keys.keys())
-        
+
     @property
     def anim_params(self) -> list[str]:
-        return sorted(self._anim_params.keys())
-        
+        return list(self._anim_params.keys())
+
     @property
     def anim_options(self) -> list[str]:
         return sorted(self._anims.keys())
-        
+
     @property
     def color_params(self) -> list[str]:
         return sorted(self._color_params.keys())
-    
+
     def __len__(self) -> int:
         """Returns number of keys."""
         return len(self._keys)
