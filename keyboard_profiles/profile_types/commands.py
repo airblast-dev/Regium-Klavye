@@ -35,9 +35,12 @@ class Colors(TypedDict):
     #  Base color values. By default all colors are zero/off.
 
     report_type: Literal[0x02, 0x03]
-    # Feature report = 0x02, Write = 0x03
+    #  Feature report = 0x02, Write = 0x03
 
     color_params: ColorParams
+
+    padding: int
+    #  Amount of padding for Colors.
 
 
 class AnimationOption(TypedDict):
@@ -75,6 +78,9 @@ class Animations(TypedDict):
     params: dict[str, AnimationParam]
     #  Their definition should be the same with
     #  the order they will be combined.
+
+    padding: int
+    #  Amount of padding for Colors.
 
 
 class Commands(TypedDict):

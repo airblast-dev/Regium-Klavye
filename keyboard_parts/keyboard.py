@@ -39,6 +39,8 @@ class Keyboard:
         "color_params",
         "_current_color_params",
         "_color_params",
+        "_color_padding",
+        "_anim_padding",
     )
 
     def __init__(self, vid: int, pid: int):
@@ -73,6 +75,8 @@ class Keyboard:
         self._color_params = _profile["commands"]["colors"]["color_params"]["params"]
         self._kb_size = _profile["kb_size"]
         self._current_color_params: dict[str, list[int]] = {}
+        self._color_padding = self._colors["padding"]
+        self._anim_padding = _profile["commands"]["animations"]["padding"]
 
     def __len__(self) -> int:
         """Returns number of keys."""
@@ -127,6 +131,7 @@ class Keyboard:
         new_param = list(param_base)
         for param in self._current_color_params.values():
             new_param += param
+        new_param += (self._anim_padding - len(new_param)) * [0x00]
         steps.append(new_param)
 
         self._final_color_data: tuple[bytearray, ...] = tuple(map(bytearray, steps))
@@ -190,7 +195,7 @@ class Keyboard:
             anim_data.extend(option)
 
         self._final_anim_data = bytearray(
-            anim_data + [*((65 - len(anim_data)) * [0x00])]
+            anim_data + (self._anim_padding - len(anim_data)) * [0x00]
         )
 
     def apply_animation(self) -> bytearray:

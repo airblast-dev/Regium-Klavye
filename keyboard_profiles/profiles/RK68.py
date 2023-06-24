@@ -38,6 +38,7 @@ profile = {
                     }
                 }
             },
+            "padding": 65
         },
         "animations": {
             "base": [0x0A, 0x01, 0x01, 0x02, 0x29],
@@ -65,6 +66,7 @@ profile = {
                     "unit": "minutes",
                 },
             },
+            "padding": 65
         },
         # fmt: on
     },
