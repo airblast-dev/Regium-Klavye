@@ -5,7 +5,7 @@ def parse_params(
     options: dict[str, int] | None,
     kb_options: dict[str, AnimationParam | ColorParam],
 ) -> dict[str, list[int]]:
-    """Parse parameters and fill in missing parameters with defaults defined in kb_option."""
+    """Parse parameters and fill in the missing parameters in options with defaults defined in kb_option."""
 
     if options is None:
         default_options = {}
