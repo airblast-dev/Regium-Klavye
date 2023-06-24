@@ -19,7 +19,6 @@ class Keyboard:
 
     __slots__ = (
         "_name",
-        "animations",
         "_anim_params",
         "_kb_size",
         "_vid",
@@ -31,7 +30,7 @@ class Keyboard:
         "_final_anim_data",
         "_final_color_data",
         "_anim_base",
-        "_anims",
+        "_anim_options",
         "_layout",
         "_color_param_base",
         "_current_color_params",
@@ -56,7 +55,7 @@ class Keyboard:
             if model["vendor_id"] == self._vid and model["product_id"] == self._pid:
                 self._model = model
 
-        self._anims = _profile["commands"]["animations"]["options"]
+        self._anim_options = _profile["commands"]["animations"]["options"]
         self._anim_params = _profile["commands"]["animations"]["params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
         self._final_anim_data: bytearray
@@ -87,11 +86,22 @@ class Keyboard:
 
     @property
     def anim_options(self) -> list[str]:
-        return sorted(self._anims.keys())
+        return sorted(self._anim_options.keys())
 
     @property
     def color_params(self) -> list[str]:
         return sorted(self._color_params.keys())
+
+    @property
+    def anim_param_choices(self) -> dict[str, tuple[int, ...]]:
+        return {k: v["choices"] for k, v in self._anim_params.items()}
+    
+    @property
+    def color_param_choices(self) -> dict[str, tuple[int, ...]]:
+        return {k: v["choices"] for k, v in self._color_params.items()}
+
+    def get_choice(self, param: str) -> tuple[int, ...]:
+        return self._anim_params[param]["choices"]
 
     def __len__(self) -> int:
         """Returns number of keys."""
@@ -124,7 +134,7 @@ class Keyboard:
             key.set_color(rgb)
 
     def set_color_params(self, options: dict[str, int]):
-        self._current_color_params = parse_params(options, self._color_params)
+        self._current_color_params = parse_params(options, self._color_params)  # type: ignore
 
     def _color_data(self) -> None:
         """Construct final bytes to be written for static color selection."""
@@ -202,7 +212,7 @@ class Keyboard:
         Keyword arguments should be only used when you already know the keyboard supports said parameter.
         """
 
-        new_options = {"base": self._anims[anim_name]["value"]}
+        new_options = {"base": self._anim_options[anim_name]["value"]}
         new_options.update(parse_params(options, self._anim_params))
 
         anim_data: list[int] = self._anim_base
