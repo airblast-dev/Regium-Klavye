@@ -1,7 +1,4 @@
 from .profile_types import Profile, Model, Commands
-from typing import List, Tuple, Dict
-
-_profiles = dict()
 
 
 #  This used to work via importing  the profiles and then calling globals.

@@ -1,11 +1,10 @@
 from keyboard_profiles import PROFILES
-from typing import List, Tuple
 
 
 UDEV_PATH = "/etc/udev/rules.d/99-rkapi.rules"
 
 
-def _construct_rule(vid_pid: Tuple[int, int]) -> str:
+def _construct_rule(vid_pid: tuple[int, int]) -> str:
     #  When formatting integer to hexadecimal string leading 0's are removed.
     #  This adds the 0 values while still fitting in 4 characters so its valid.
     #  5e -> 005e
@@ -15,18 +14,18 @@ def _construct_rule(vid_pid: Tuple[int, int]) -> str:
     )
 
 
-def _construct_comment(name: str, long_name: Tuple[str, ...]) -> str:
+def _construct_comment(name: str, long_name: tuple[str, ...]) -> str:
     return f"#  Rules for device {name}. {long_name}\n"
 
 
-def _construct_rules() -> Tuple[str, ...]:
+def _construct_rules() -> tuple[str, ...]:
     """Returns tuple of rules for each single vendor id and product id."""
     return tuple(map(_construct_rule, PROFILES.keys()))
 
 
-def _construct_comments() -> List[str]:
+def _construct_comments() -> list[str]:
     devices = tuple(profile for profile in PROFILES.values())
-    comments: List[str] = list()
+    comments: list[str] = list()
     for device in devices:
         name = device["name"]
         long_name = tuple(model["long_name"] for model in device["models"])

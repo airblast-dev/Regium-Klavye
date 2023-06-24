@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Tuple, NotRequired
+from typing import TypedDict, NotRequired
 from .commands import Commands
 from .model import Model
 
@@ -8,10 +8,10 @@ from .model import Model
 
 class Profile(TypedDict):
     name: str
-    kb_size: Tuple[int, int]
-    models: Tuple[Model]
+    kb_size: tuple[int, int]
+    models: tuple[Model, ...]
     commands: Commands
-    present_keys: Tuple[
-        Tuple[str, Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]], ...
+    present_keys: tuple[
+        tuple[str, tuple[tuple[int, int], tuple[int, int], tuple[int, int]]], ...
     ]
-    layout: NotRequired[Tuple[Tuple[str | None, int], ...]]
+    layout: NotRequired[tuple[tuple[str | None, int], ...]]

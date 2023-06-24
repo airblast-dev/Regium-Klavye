@@ -1,4 +1,4 @@
-from typing import TypedDict, List
+from typing import TypedDict
 
 
 class Model(TypedDict):
@@ -10,7 +10,7 @@ class Model(TypedDict):
     #  Long name represents a more specific name for the device.
     #  This includes special editions and/or specific connection protocols.
 
-    connection_protocols: List[str]
+    connection_protocols: list[str]
     #  This is for different connection protocols such as USB, BT and or 2.4GHz.
 
     vendor_id: int
