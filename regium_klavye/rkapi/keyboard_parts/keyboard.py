@@ -37,6 +37,9 @@ class Keyboard:
         "_color_params",
         "_color_padding",
         "_anim_padding",
+        "_has_rgb",
+        "_has_anim",
+        "_has_custom_anim",
     )
 
     def __init__(self, vid: int, pid: int):
@@ -67,6 +70,9 @@ class Keyboard:
         self._current_color_params: dict[str, list[int]] = {}
         self._color_padding = self._colors["padding"]
         self._anim_padding = _profile["commands"]["animations"]["padding"]
+        self._has_rgb = self._model["has_rgb"]
+        self._has_anim = self._model["has_anim"]
+        self._has_custom_anim = self._model["has_custom_anim"]
 
     @property
     def name(self) -> str:
@@ -91,6 +97,18 @@ class Keyboard:
     @property
     def color_param_choices(self) -> dict[str, tuple[int, ...]]:
         return {k: v["choices"] for k, v in self._color_params.items()}
+
+    @property
+    def has_rgb(self) -> bool:
+        return self._has_rgb
+
+    @property
+    def has_anim(self) -> bool:
+        return self._has_anim
+
+    @property
+    def has_custom_anim(self) -> bool:
+        return self._has_custom_anim
 
     def get_anim_choice(self, param: str) -> tuple[int, ...]:
         return self._anim_params[param]["choices"]

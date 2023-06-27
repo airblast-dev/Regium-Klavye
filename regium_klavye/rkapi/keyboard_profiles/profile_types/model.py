@@ -18,3 +18,7 @@ class Model(TypedDict):
     endpoint: int
     usage: int
     usage_page: int
+
+    has_rgb: bool
+    has_anim: bool
+    has_custom_anim: bool

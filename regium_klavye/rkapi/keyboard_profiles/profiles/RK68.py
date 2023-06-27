@@ -11,6 +11,9 @@ profile = {
             "endpoint": 0x00,
             "usage": 128,
             "usage_page": 1,
+            "has_rgb": True,
+            "has_anim": True,
+            "has_custom_anim": True,
         },
     ),
     "commands": {
