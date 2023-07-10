@@ -4,9 +4,8 @@ Regium Klavye
 A simple API to control settings related to RGB and keymapping for supported keyboards.
 """
 import hid
-from .keyboard_parts import Keyboard, KeyboardNotFound
-from .keyboard_profiles import PROFILES
-from .udev import setup_rules, get_udev, is_rules_up_to_date, UDEV_PATH
+from keyboard_parts import Keyboard, KeyboardNotFound
+from keyboard_profiles import PROFILES
 
 
 def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboard]:
