@@ -4,9 +4,9 @@ from typing import Iterator, overload
 
 import hid
 
-from keyboard_parts import Key
-from keyboard_profiles import PROFILES
-from helpers import parse_params
+from ..keyboard_parts import Key
+from ..keyboard_profiles import PROFILES
+from ..helpers import parse_params
 
 
 class Keyboard:
@@ -31,7 +31,7 @@ class Keyboard:
         "_final_color_data",
         "_anim_base",
         "_anim_options",
-        "_layout",
+        "layout",
         "_color_param_base",
         "_current_color_params",
         "_color_params",
@@ -52,7 +52,8 @@ class Keyboard:
             key[0]: Key(*key) for key in _profile["present_keys"]
         }
 
-        self._layout = _profile.get("layout")
+        self.layout = _profile.get("layout")
+        self._kb_size = _profile["kb_size"]
 
         for model in _profile["models"]:
             if model["vendor_id"] == self._vid and model["product_id"] == self._pid:
@@ -91,8 +92,10 @@ class Keyboard:
         return sorted(self._anim_options.keys())
 
     @property
-    def anim_param_choices(self) -> dict[str, tuple[int, ...]]:
-        return {k: v["choices"] for k, v in self._anim_params.items()}
+    def anim_param_choices(self) -> dict[str, tuple[tuple[int], str]]:
+        return {
+            k: (v["choices"], v["description"]) for k, v in self._anim_params.items()
+        }
 
     @property
     def color_param_choices(self) -> dict[str, tuple[int, ...]]:
@@ -109,6 +112,14 @@ class Keyboard:
     @property
     def has_custom_anim(self) -> bool:
         return self._has_custom_anim
+
+    @property
+    def width(self) -> int:
+        return self._kb_size[0]
+
+    @property
+    def height(self) -> int:
+        return self._kb_size[1]
 
     def get_anim_choice(self, param: str) -> tuple[int, ...]:
         return self._anim_params[param]["choices"]
@@ -141,7 +152,7 @@ class Keyboard:
             return
         raise KeyNotFoundError(self.name, key)
 
-    def set_color(self, rgb: tuple[int, int, int]) -> None:
+    def set_color(self, rgb: tuple[int, int, int] | list[int]) -> None:
         """Set all key objects present to the provided color."""
         for key in self:
             key.set_color(rgb)
@@ -176,7 +187,7 @@ class Keyboard:
 
     def apply_color(
         self,
-        rgb: tuple[int, int, int] | None = None,
+        rgb: tuple[int, int, int] | list[int] | None = None,
     ) -> tuple[bytearray, ...]:
         """
         Write the final data to the interface.
