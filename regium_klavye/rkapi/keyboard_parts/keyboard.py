@@ -4,9 +4,9 @@ from typing import Iterator, overload
 
 import hid
 
-from keyboard_parts import Key
-from keyboard_profiles import PROFILES
-from helpers import parse_params
+from . import Key
+from ..keyboard_profiles import PROFILES
+from ..helpers import parse_params
 
 
 class Keyboard:
