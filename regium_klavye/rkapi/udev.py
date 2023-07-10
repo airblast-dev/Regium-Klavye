@@ -1,4 +1,6 @@
-from keyboard_profiles import PROFILES
+from sys import version
+from .keyboard_profiles import PROFILES
+from .version import VERSION
 
 
 UDEV_PATH = "/etc/udev/rules.d/99-rkapi.rules"
@@ -39,27 +41,29 @@ def get_udev() -> str:
 
     Example result:
     #  This file should not be edited manually.
-    #  Use command
+    #  Run this command "regium_klavye udev" as root.
+    #  VERSION= current-version
 
     #  Rules for device Royal Kludge RK68. ('Royal Kludge RK68 BT and USB',)
     SUBSYSTEM=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
     """
-    udev = "#  This file should not be edited manually.\n#  Use command xx.\n\n"  #  TO-DO add command name for cli implementation.
+    udev = f'#  Regium Klavye {VERSION}\n#  This file should not be edited manually.\n#  Run "regium_klavye udev" as root to regenerate the rules.\n\n'  #  TO-DO add command name for cli implementation.
+    print(udev)
     for comment, rule in zip(_construct_comments(), _construct_rules()):
         udev += comment + rule + "\n\n"
     return udev
 
 
-def write_udev(path: str = UDEV_PATH, refresh_rules: bool = True) -> None:
+def _write_udev(path: str = UDEV_PATH, refresh_rules: bool = True) -> None:
     """Write the rules to udev path, requires administrator priveleges."""
     with open(path, "w") as file:
         file.write(get_udev())
 
 
-def setup_rules() -> None:
+def setup_rules(path=UDEV_PATH) -> None:
     """Write rules to udev path, reload rules and trigger them."""
-    write_udev()
+    _write_udev(path=path)
 
     import subprocess
 
@@ -68,3 +72,17 @@ def setup_rules() -> None:
 
     #  Force udev to trigger rules.
     subprocess.run(["udevadm", "trigger"])
+
+
+def is_rules_up_to_date(path=UDEV_PATH) -> bool:
+    from os.path import isfile
+
+    if not isfile(path):
+        return False
+    from re import match
+
+    udev_rules = open(path, "r")
+    current_rules = udev_rules.read()
+    udev_rules.close()
+    current_version = match(r".*Regium\sKlavye\s([0-9]\.[0-9]\.[0-9])", current_rules).group(1)  # type: ignore
+    return current_version == VERSION
