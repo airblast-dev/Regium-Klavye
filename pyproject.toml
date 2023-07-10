@@ -6,3 +6,6 @@ include = '''
   | ^.*\.pyx
 )
 '''
+[tool.pyright]
+reportMissingModuleSource = false
+reportMissingTypeStubs = false
