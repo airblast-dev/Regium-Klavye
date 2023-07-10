@@ -66,8 +66,6 @@ class AnimationParam(TypedDict):
     choices: tuple[int, ...]
     #  Accepted choices for this parameter.
 
-    description: str
-
 
 class Animations(TypedDict):
     base: list[int]
