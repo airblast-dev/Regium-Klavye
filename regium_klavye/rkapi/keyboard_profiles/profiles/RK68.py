@@ -53,22 +53,22 @@ profile = {
             "params": {
                 #  Animation options will be combined with the same ordered defined here.
                 #  For range key values a callable that returns a boolean value, a Sequence of accepted values or a range can be provided.
-                "speed": {"checks": range(0x00, 0x05), "default": [0x03], "choices": (0x00, 0x01, 0x02, 0x03, 0x04)},
-                "brightness": {"checks": range(0x00, 0x06), "default": [0x05], "choices": (0x00, 0x01, 0x02, 0x03, 0x04, 0x05)},
+                "speed": {"checks": range(0x00, 0x05), "default": [0x03], "choices": (0x00, 0x01, 0x02, 0x03, 0x04), "description": "Speed of the animation."},
+                "brightness": {"checks": range(0x00, 0x06), "default": [0x05], "choices": (0x00, 0x01, 0x02, 0x03, 0x04, 0x05)}, "description": "Brightness option for animations, can be ignored by the keyboard. Starts from 0% increments by 20% for each value.",
                 "color": {
                     "checks": lambda colors: all(
                         [0x00 <= color and color <= 0xFF for color in colors]
                     ),
                     "default": [0xFF, 0xFF, 0xFF],
-                    "choices": (0x00, 0xff)
+                    "choices": (0x00, 0xff),
+                    "description": "Color option applicable for some animations. Most animations ignore it with color_mix enabled."
                 },
-                "color_mix": {"checks": [0x00, 0x01], "default": [0x00]}, "choices": (True, False),
+                "color_mix": {"checks": [0x00, 0x01], "default": [0x00], "choices": (0, 1), "description": "Toggle for random color mixing by the keyboard."},
                 "sleep": {
                     "checks": range(0x00, 0x05),
                     "default": [0x00],
-                    "increments": 10,
-                    "unit": "minutes",
-                    "choices": (0x00, 0x01, 0x02, 0x03, 0x04)
+                    "choices": (0x00, 0x01, 0x02, 0x03, 0x04),
+                    "description": "Setting to 0 disables sleep, rest of them starts from 10 minutes and increments by 10 minutes."
                 },
             },
             "padding": 65
