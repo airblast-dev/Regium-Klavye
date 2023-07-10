@@ -202,9 +202,13 @@ def main():
             
         elif len(choices["color"]) == 3:
             try:
-                color = [int(val) for val in choices["color"]]
+                color = tuple([int(val) for val in choices["color"]])
+                keyboard.apply_color(color)
             except TypeError:
                 set_color_parser.print_help()
                 
+                
         else:
             set_color_parser.print_help()
+            
+main()
