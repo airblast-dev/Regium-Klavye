@@ -4,6 +4,8 @@ from typing import Iterator, overload
 
 import hid
 
+from regium_klavye.keyboard_profiles.profile_types.commands import AnimationParam
+
 from . import Key
 from ..keyboard_profiles import PROFILES
 from ..helpers import parse_params
@@ -89,10 +91,10 @@ class Keyboard:
     @property
     def anim_options(self) -> list[str]:
         return sorted(self._anim_options.keys())
-
+        
     @property
-    def anim_param_choices(self) -> dict[str, tuple[int, ...]]:
-        return {k: v["choices"] for k, v in self._anim_params.items()}
+    def anim_params(self) -> dict[str, AnimationParam]:
+        return self._anim_params
 
     @property
     def color_param_choices(self) -> dict[str, tuple[int, ...]]:
