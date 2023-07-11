@@ -2,7 +2,7 @@ import argparse
 import sys, platform, os
 from enum import Enum
 
-from .rkapi import get_keyboards
+from .rkapi import get_keyboards, NoKeyboardsFound
 from .udev import UDEV_PATH, get_udev, setup_rules, is_rules_up_to_date
 from .helpers import color_check
 
@@ -94,8 +94,11 @@ def main():
         help="List all supported keyboards including ones not found on this device.",
     )
 
-    keyboards = get_keyboards()
-
+    try:
+        keyboards = get_keyboards()
+    except NoKeyboardsFound:
+        sys.exit("No supported keyboards detected.")
+    
     # SET-COLOR PARSER
     set_color_parser = subparsers.add_parser(
         "set-color",
@@ -136,7 +139,8 @@ def main():
     choices = vars(parser.parse_args())
 
     _check_linux(choices.get("write", False))
-    print(choices)
+    
+    keyboard = keyboards[choices["device"]]
     
     if choices["command"] is None:
         parser.print_help()
@@ -197,8 +201,6 @@ def main():
         sys.exit(
             'Invalid device number provided. Use "regium_klavye list" for a list of supported and detected devices.'
         )
-        
-    keyboard: Keyboard = keyboards[choices["device"]]
 
     if choices["command"] == "set-color":
         if not keyboard.has_rgb:
