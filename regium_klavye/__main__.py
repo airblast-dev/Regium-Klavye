@@ -2,9 +2,9 @@ import argparse
 import sys, platform, os
 from enum import Enum
 
-from rkapi import get_keyboards
-from udev import UDEV_PATH, get_udev, setup_rules, is_rules_up_to_date
-from helpers import color_check
+from .rkapi import get_keyboards
+from .udev import UDEV_PATH, get_udev, setup_rules, is_rules_up_to_date
+from .helpers import color_check
 
 
 

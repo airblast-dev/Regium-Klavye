@@ -1,6 +1,6 @@
 from sys import version
-from keyboard_profiles import PROFILES
-from version import VERSION
+from .keyboard_profiles import PROFILES
+from .version import VERSION
 
 
 UDEV_PATH = "/etc/udev/rules.d/99-rkapi.rules"

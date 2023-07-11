@@ -5,8 +5,8 @@ from typing import Iterator, overload
 import hid
 
 from . import Key
-from keyboard_profiles import PROFILES
-from helpers import parse_params
+from ..keyboard_profiles import PROFILES
+from ..helpers import parse_params
 
 
 class Keyboard:
