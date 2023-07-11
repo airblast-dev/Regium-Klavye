@@ -1,4 +1,4 @@
-from ..helpers import color_check
+from helpers import color_check
 
 
 class Key:

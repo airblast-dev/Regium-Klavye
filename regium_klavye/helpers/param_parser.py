@@ -1,4 +1,4 @@
-from ..keyboard_profiles.profile_types import AnimationParam, ColorParam
+from keyboard_profiles.profile_types import AnimationParam, ColorParam
 
 
 def parse_params(

@@ -2,7 +2,11 @@ import argparse
 import sys, platform, os
 from enum import Enum
 
-import rkapi
+from rkapi import get_keyboards
+from udev import UDEV_PATH, get_udev, setup_rules, is_rules_up_to_date
+from helpers import color_check
+
+
 
 
 class NamedColors(Enum):
@@ -24,12 +28,12 @@ def _check_linux(write=False) -> None:
     if os.getuid() == 0 and write is True:
         return
 
-    if not os.path.isfile(rkapi.UDEV_PATH) and write is False:
+    if not os.path.isfile(UDEV_PATH) and write is False:
         sys.exit(
             'Udev rules were not found. Run "regium_klavye udev -w" as root to write the rules.'
         )
 
-    if not rkapi.is_rules_up_to_date():
+    if not is_rules_up_to_date():
         sys.exit(
             'Udev rules are not up to date. Run "regium_klavye udev -w" as root to update the rules.'
         )
@@ -42,7 +46,7 @@ def main():
         "Regium Klavye",
         description="Regium Klavye is a command line (CLI) application for controlling RGB, Keymapping and animations for supported keyboards.",
         epilog=(
-            "While every keyboard supported is tested to assure there isnt any issues.\nThis application was made through reverse engineering devices "
+            "While every keyboard supported is tested to assure there isnt any issues.\nThis application was made through reverse engineering devices, "
             + "and therefor I cannot provide any guarantee or promises that this will not break any keyboards.\n"
             + "Use the application at your own risk."
         ),
@@ -67,13 +71,13 @@ def main():
             "-w",
             "--write",
             action="store_true",
-            help=f"Write udev rules to {rkapi.UDEV_PATH}. Requires to be run as root.",
+            help=f"Write udev rules to {UDEV_PATH}. Requires to be run as root.",
         )
 
         udev_parser.add_argument(
             "-p",
             "--path",
-            default="/etc/udev/rules.d/99-rkapi.rules",
+            default=UDEV_PATH,
             help="Requires superuser privileges. Path to store udev rules can be optionally provided.",
             metavar="WRITE_PATH",
         )
@@ -90,7 +94,7 @@ def main():
         help="List all supported keyboards including ones not found on this device.",
     )
 
-    keyboards = rkapi.get_keyboards()
+    keyboards = get_keyboards()
 
     # SET-COLOR PARSER
     set_color_parser = subparsers.add_parser(
@@ -132,19 +136,24 @@ def main():
     choices = vars(parser.parse_args())
 
     _check_linux(choices.get("write", False))
-
-    if "udev" == choices["command"]:
+    print(choices)
+    
+    if choices["command"] is None:
+        parser.print_help()
+        return
+    
+    elif "udev" == choices["command"]:
         if choices["read"] is True:
-            print(rkapi.get_udev())
+            print(get_udev())
         elif choices["write"] is True:
-            rkapi.setup_rules(choices["path"])
+            setup_rules(choices["path"])
             print("Udev rules have been succesfully written.")
         else:
             udev_parser.print_help()  # type: ignore
 
     elif "list" == choices["command"]:
         if choices["all"] is True:
-            from rkapi import PROFILES
+            from . import PROFILES
 
             #  device_list is the general name and then the list of specific models or versions of the keyboard.
 
@@ -184,13 +193,12 @@ def main():
                     keyboard.long_name + "\n" + " - " + ", ".join(valid_commands)
                 )
             print("\n".join(supported_devices))
-
     elif len(keyboards) - 1 > choices["device"]:
         sys.exit(
             'Invalid device number provided. Use "regium_klavye list" for a list of supported and detected devices.'
         )
         
-    keyboard: rkapi.Keyboard = keyboards[choices["device"]]
+    keyboard: Keyboard = keyboards[choices["device"]]
 
     if choices["command"] == "set-color":
         if not keyboard.has_rgb:
@@ -211,4 +219,8 @@ def main():
         else:
             set_color_parser.print_help()
             
+        return
+            
+    elif choices["command"] == "set-anim":
+        ...
 main()
