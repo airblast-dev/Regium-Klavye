@@ -53,6 +53,15 @@ def main():
     )
 
     subparsers = parser.add_subparsers(help="commands", dest="command")
+    
+    parser.add_argument(
+        "-d",
+        "--device",
+        required=False,
+        default=0,
+        type=int,
+        help='Number of the device to apply settings for. List of detected devices can be read via "regium_klavye list"'
+    )
 
     #  UDEV PARSER
     if platform.system() == "Linux":
@@ -97,20 +106,13 @@ def main():
     try:
         keyboards = get_keyboards()
     except NoKeyboardsFound:
-        sys.exit("No supported keyboards detected.")
+        print("No supported keyboards detected.")
+        return
     
     # SET-COLOR PARSER
     set_color_parser = subparsers.add_parser(
         "set-color",
         help="Set color for keyboard. The device number can be provided with --device to change the color for a specific device.",
-    )
-    set_color_parser.add_argument(
-        "-d",
-        "--device",
-        type=int,
-        choices=range(0, len(keyboards)),
-        help='Number of the device to change color. Use "regium_klavye list" for a list of found and supported devices.',
-        default=0,
     )
 
     set_color_parser.add_argument(
@@ -125,15 +127,6 @@ def main():
     set_anim_parser = subparsers.add_parser(
         "set-anim",
         description="Set animation for keyboard. The device number can be provided with --device to change the color for a specific device.",
-    )
-
-    set_anim_parser.add_argument(
-        "-d",
-        "--device",
-        type=int,
-        choices=range(0, len(keyboards)),
-        help='Number of the device to set animation. Use "regium_klavye list" for a list of found and supported devices.',
-        default=0
     )
 
     choices = vars(parser.parse_args())
@@ -154,8 +147,9 @@ def main():
             print("Udev rules have been succesfully written.")
         else:
             udev_parser.print_help()  # type: ignore
-
-    elif "list" == choices["command"]:
+        return
+    
+    if "list" == choices["command"]:
         if choices["all"] is True:
             from . import PROFILES
 
