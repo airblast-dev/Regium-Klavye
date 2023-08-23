@@ -41,18 +41,18 @@ def get_udev() -> str:
 
     Example result:
     #  This file should not be edited manually.
-    #  Run this command "regium_klavye udev" as root.
+    #  Run this command "regium_klavye udev -w" as root.
     #  VERSION= current-version
 
     #  Rules for device Royal Kludge RK68. ('Royal Kludge RK68 BT and USB',)
     SUBSYSTEM=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
     """
-    udev = f'#  Regium Klavye {VERSION}\n#  This file should not be edited manually.\n#  Run "regium_klavye udev" as root to regenerate the rules.\n\n'  #  TO-DO add command name for cli implementation.
-    print(udev)
+    info_text = f'#  Regium Klavye {VERSION}\n#  This file should not be edited manually.\n#  Run "regium_klavye udev" as root to regenerate the rules.\n\n'  #  TO-DO add command name for cli implementation.
+    udev_rules: list[str] = [info_text]
     for comment, rule in zip(_construct_comments(), _construct_rules()):
-        udev += comment + rule + "\n\n"
-    return udev
+        udev_rules.append("".join(comment + rule + "\n\n"))
+    return "".join(udev_rules)
 
 
 def _write_udev(path: str = UDEV_PATH, refresh_rules: bool = True) -> None:
