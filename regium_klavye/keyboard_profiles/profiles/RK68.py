@@ -54,7 +54,7 @@ profile = {
                 #  Animation options will be combined with the same ordered defined here.
                 #  For range key values a callable that returns a boolean value, a Sequence of accepted values or a range can be provided.
                 "speed": {"checks": range(0x00, 0x05), "default": [0x03], "choices": (0x00, 0x01, 0x02, 0x03, 0x04), "description": "Speed of the animation."},
-                "brightness": {"checks": range(0x00, 0x06), "default": [0x05], "choices": (0x00, 0x01, 0x02, 0x03, 0x04, 0x05)}, "description": "Brightness option for animations, can be ignored by the keyboard. Starts from 0% increments by 20% for each value.",
+                "brightness": {"checks": range(0x00, 0x06), "default": [0x05], "choices": (0x00, 0x01, 0x02, 0x03, 0x04, 0x05), "description": "Brightness option for animations, can be ignored by the keyboard. Starts from 0% increments by 20% for each value."},
                 "color": {
                     "checks": lambda colors: all(
                         [0x00 <= color and color <= 0xFF for color in colors]
