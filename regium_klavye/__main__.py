@@ -183,7 +183,7 @@ def main():
 
     keyboard = keyboards[choices["device"]]
 
-    if "color" in choices:
+    if choices.get("color", False):
         choices["color"] = _parse_color(choices["color"])
 
     if choices["command"] is None:
