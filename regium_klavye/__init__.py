@@ -8,4 +8,3 @@ from .keyboard_parts import Keyboard, Key, KeyboardNotFound
 from .keyboard_profiles import PROFILES
 from . import udev
 from . import rkapi
-
