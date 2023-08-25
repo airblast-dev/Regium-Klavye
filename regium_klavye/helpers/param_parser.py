@@ -28,7 +28,6 @@ def parse_params(
 
     new_params = {}
     for param in kb_params.keys():
-        print(kb_params.keys())
         is_valid: bool = False
         if param not in _params.keys():
             new_params[param] = kb_params[param]["default"]
