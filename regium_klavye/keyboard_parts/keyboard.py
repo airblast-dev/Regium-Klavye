@@ -1,10 +1,9 @@
-from itertools import repeat
 from time import sleep
-from typing import Iterator, overload
+from typing import Iterator
 
 import hid
 
-from regium_klavye.keyboard_profiles.profile_types.commands import AnimationParam
+from ..keyboard_profiles.profile_types.commands import AnimationParam
 
 from . import Key
 from ..keyboard_profiles import PROFILES
@@ -27,17 +26,14 @@ class Keyboard:
         "_pid",
         "_keys",
         "_colors",
-        "_final_data",
         "_model",
         "_final_anim_data",
         "_final_color_data",
         "_anim_base",
         "_anim_options",
         "_layout",
-        "_color_param_base",
         "_current_color_params",
         "_color_params",
-        "_color_padding",
         "_anim_padding",
         "_has_rgb",
         "_has_anim",
@@ -66,11 +62,9 @@ class Keyboard:
         self._final_anim_data: bytearray
         self._final_color_data: tuple[bytearray, ...]
         self._colors = _profile["commands"]["colors"]
-        self._color_param_base = _profile["commands"]["colors"]["color_params"]["base"]
         self._color_params = _profile["commands"]["colors"]["color_params"]["params"]
         self._kb_size = _profile["kb_size"]
         self._current_color_params: dict[str, list[int]] = {}
-        self._color_padding = self._colors["padding"]
         self._anim_padding = _profile["commands"]["animations"]["padding"]
         self._has_rgb = self._model["has_rgb"]
         self._has_anim = self._model["has_anim"]
@@ -91,7 +85,7 @@ class Keyboard:
     @property
     def anim_options(self) -> list[str]:
         return sorted(self._anim_options.keys())
-        
+
     @property
     def anim_params(self) -> dict[str, AnimationParam]:
         return self._anim_params
@@ -111,12 +105,6 @@ class Keyboard:
     @property
     def has_custom_anim(self) -> bool:
         return self._has_custom_anim
-
-    def get_anim_choice(self, param: str) -> tuple[int, ...]:
-        return self._anim_params[param]["choices"]
-
-    def get_param_choice(self, param: str) -> tuple[int, ...]:
-        return self._color_params[param]["choices"]
 
     def __len__(self) -> int:
         """Returns number of keys."""
@@ -227,10 +215,9 @@ class Keyboard:
         Keyword arguments should be only used when you already know the keyboard supports said parameter.
         """
 
-        new_options = {"base": self._anim_options[anim_name]["value"]}
-        new_options.update(parse_params(options, self._anim_params))
+        new_options = parse_params(options, self._anim_params)  # type: ignore
 
-        anim_data: list[int] = self._anim_base
+        anim_data: list[int] = self._anim_base + self._anim_options[anim_name]["value"]
         for option in new_options.values():
             anim_data.extend(option)
 
@@ -259,7 +246,6 @@ class Keyboard:
             dev.close()
             sleep(0.01)
         data = self._final_anim_data
-        self._final_data = None
         return data
 
     def apply_custom_animation(self, animation: str):
