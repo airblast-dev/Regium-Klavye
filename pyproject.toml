@@ -1,3 +1,16 @@
+[project]
+name = "regium_klavye_AIRBLAST"
+version = "0.0.1"
+authors = [
+  {name="Tayfun Bocek", email="tayfunbocek@live.ca"},
+]
+description = "An application and API to control supported Royal Kludge keyboards."
+requires-python = ">=3.7"
+
+[build-system]
+requires = ["hidapi"]
+build-backed = "hatchling.build"
+
 [tool.black]
 target-version = ["py311"]
 include = '''
