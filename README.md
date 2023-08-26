@@ -15,7 +15,7 @@ The goal is to provide an easy to use, simple, library and command-line interfac
 TODO
 
 ### Examples:
-```python
+```
 python -m regium_klavye # Prints out help message.
 python -m regium_klavye set-color red  # Sets the keyboard lighting to red.
 python -m regium_klavye set-color 0 255 0  # Sets keyboard lighting to green.
