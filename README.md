@@ -11,17 +11,31 @@ The goal is to provide an easy to use, simple, library and command-line interfac
 
 > This application does not have any affiliation with Royal Kludge. I am not reliable for any damage that the application may cause to your keyboard. In the case you do have problems, please create an issue so it can be fixed or removed all together depending on the severity.
 
-## Docs:
-TODO
-
 ## Examples:
-Command Line example:
+### Command Line example:
 ```zsh
 python -m regium_klavye # Prints out help message.
 python -m regium_klavye set-color red  # Sets the keyboard lighting to red.
 python -m regium_klavye set-color 0 255 0  # Sets keyboard lighting to green.
 ```	
->For each keyboard please read supported commands from the documentation, as every implemented keyboard might not have full functionality.
-
 
 ### Library Examples:
+```python
+from regium_klavye import rkapi
+
+
+keyboards = rkapi.get_keyboards()
+keyboard = keyboards[0]  # Assuming we want to change the first keyboard.
+keyboard.apply_color((255, 0, 255))  # Sets the keyboards lighting to red.
+```
+>For each keyboard please read supported commands from the documentation, as every implemented keyboard might not have full functionality.
+
+## Supported Devices
+
+Below is currently supported CLI functionalities. For the library feel free to take a look at the documentation.
+
+Keyboards | Color | Animation | Keymapping | CustomAnimation 
+---|---|---|---|---
+ Royal Kludge RK68| :heavy_check_mark: | :white_check_mark:| :heavy_check_mark: | :white_check_mark: 
+ 
+ 
