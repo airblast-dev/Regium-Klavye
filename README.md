@@ -9,14 +9,19 @@ Regium klavye is a CLI application and python library that allows configuration 
 
 The goal is to provide an easy to use, simple, library and command-line interface for Royal Kludge keyboards. While it started as a way to control my RK68 keyboard lighting in Linux, I intend to add support for more devices down the line.
 
-> This application does not have any connection to Royal Kludge. I am not reliable for any damage that the application may cause to your keyboard. In the case you do have problems, please create an issue so it can be fixed or removed all together depending on the severity.
+> This application does not have any affiliation with Royal Kludge. I am not reliable for any damage that the application may cause to your keyboard. In the case you do have problems, please create an issue so it can be fixed or removed all together depending on the severity.
 
-### Docs:
+## Docs:
 TODO
 
-### Examples:
-```
+## Examples:
+Command Line example:
+```zsh
 python -m regium_klavye # Prints out help message.
 python -m regium_klavye set-color red  # Sets the keyboard lighting to red.
 python -m regium_klavye set-color 0 255 0  # Sets keyboard lighting to green.
 ```	
+>For each keyboard please read supported commands from the documentation, as every implemented keyboard might not have full functionality.
+
+
+### Library Examples:
