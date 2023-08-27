@@ -21,6 +21,13 @@ include = '''
 '''
 
 [tool.ruff]
+extend-select = [
+  "D"
+]
 per-file-ignores = {'__init__.py'=['F401']}
 line-length = 88
 exclude = ["profiles"]
+target-version = "py311"
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
