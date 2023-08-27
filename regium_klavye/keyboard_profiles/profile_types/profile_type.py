@@ -1,7 +1,7 @@
-from typing import TypedDict, NotRequired
+from typing import NotRequired, TypedDict
+
 from .commands import Commands
 from .model import Model
-
 
 # The profile type is defined for hatch optimization
 # and support for pylance or pyright...

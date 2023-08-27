@@ -1,12 +1,11 @@
 import argparse
-import sys
 import os
 import platform
-
+import sys
 from enum import Enum
 
-from .rkapi import get_keyboards, NoKeyboardsFound, PROFILES
-from .udev import UDEV_PATH, get_udev, setup_rules, is_rules_up_to_date
+from .rkapi import PROFILES, NoKeyboardsFound, get_keyboards
+from .udev import UDEV_PATH, get_udev, is_rules_up_to_date, setup_rules
 
 
 class NamedColors(Enum):

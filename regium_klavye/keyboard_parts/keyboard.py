@@ -3,11 +3,10 @@ from typing import Iterator
 
 import hid
 
-from ..keyboard_profiles.profile_types.commands import AnimationParam
-
-from . import Key
-from ..keyboard_profiles import PROFILES
 from ..helpers import parse_params
+from ..keyboard_profiles import PROFILES
+from ..keyboard_profiles.profile_types.commands import AnimationParam
+from . import Key
 
 
 class Keyboard:

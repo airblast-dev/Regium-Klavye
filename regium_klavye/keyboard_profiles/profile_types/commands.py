@@ -1,8 +1,4 @@
-from typing import (
-    TypedDict,
-    Literal,
-    Callable,
-)
+from typing import Callable, Literal, TypedDict
 
 
 class ColorParam(TypedDict):
