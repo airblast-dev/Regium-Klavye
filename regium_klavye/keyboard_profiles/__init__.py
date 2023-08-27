@@ -1,10 +1,6 @@
 from .profile_types import Profile, Model, Commands
 
 
-#  This used to work via importing  the profiles and then calling globals.
-#  This caused bad performance as a bunch of checks had to be done while contstructing PROFILE.
-#  It also removed the need to use the types module which also affects performance and uses ~0.2 Mb of RAM.
-#  The main benefit is that this solution allows for more flexability when it comes to imports and etc.
 def _create_profiles() -> dict[tuple[int, int], Profile]:
     from .profiles import RK68
 
@@ -15,7 +11,6 @@ def _create_profiles() -> dict[tuple[int, int], Profile]:
 
     _profiles: dict[tuple[int, int], Profile] = dict()
 
-    #  The for loop iterates every module imported. Which we then call getattr to get the profile variable inside.
     for module in local_imports.values():
         profile: Profile = module.profile
         for model in profile["models"]:

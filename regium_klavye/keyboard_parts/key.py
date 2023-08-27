@@ -16,7 +16,8 @@ class Key:
         RGB color class to safely check assigned values.
 
     indexes: tuple[tuple[`int`, `int`], tuple[`int`, `int`], tuple[`int`, `int`]]
-        Each nested tuple represents the location on the base data that will be sent for red green and blue colors.
+        Each nested tuple represents the location on the base data that will be
+        sent for red green and blue colors.
     """
 
     __slots__ = ("label", "_rgb", "_indexes")

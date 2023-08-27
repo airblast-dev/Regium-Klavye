@@ -1,6 +1,7 @@
 def color_check(rgb: tuple[int, int, int]) -> None:
     """
-    Checks if three values were provided. Raises ValueError if any number of items other than 3 is provided.
+    Checks if three values were provided.
+    Raises ValueError if any number of items other than 3 is provided.
 
     Checks if provided value is a list consisting of int's.
 
@@ -16,4 +17,4 @@ def color_check(rgb: tuple[int, int, int]) -> None:
 
     rgb_validity = (color < 0 or 255 < color for color in rgb)
     if any(rgb_validity):
-        raise ValueError(f"Color values must be between 0 and 255.")
+        raise ValueError("Color values must be between 0 and 255.")

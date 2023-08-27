@@ -5,7 +5,8 @@ def parse_params(
     params: dict[str, int] | None,
     kb_params: dict[str, AnimationParam | ColorParam],
 ) -> dict[str, list[int]]:
-    """Parse parameters and fill in the missing parameters in options with defaults defined in kb_option."""
+    """Parse parameters and fill in the missing
+    parameters in options with defaults defined in kb_option."""
 
     if params is None:
         default_params = {}
@@ -16,7 +17,8 @@ def parse_params(
     if (param_s := set(params.keys())) != (color_param_s := set(kb_params)):
         extra_param = param_s - color_param_s
         ValueError(
-            f"Expected one or more from ({kb_params.keys()}. Found {sorted(extra_param)})"
+            f"Expected one or more from "
+            f"({kb_params.keys()}. Found {sorted(extra_param)})"
         )
 
     _params = {}
@@ -35,7 +37,8 @@ def parse_params(
 
         # Check if provided value is in accepted parameter.
         if callable(kb_params[param]["checks"]):
-            #  Below is type ignored as type checkers include the range functions return as a callable.
+            # Below is type ignored as type checkers include the range functions
+            # return value as a callable.
             is_valid = kb_params[param]["checks"](_params[param])  # type: ignore
         elif isinstance(kb_params[param]["checks"], (list, tuple, range)):
             is_valid = all(

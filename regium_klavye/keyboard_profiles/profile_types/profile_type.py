@@ -2,9 +2,9 @@ from typing import TypedDict, NotRequired
 from .commands import Commands
 from .model import Model
 
-#  This is not used in the application or testing.
-#  It serves as an example structure for development purposes.
 
+# The profile type is defined for hatch optimization 
+# and support for pylance or pyright...
 
 class Profile(TypedDict):
     name: str

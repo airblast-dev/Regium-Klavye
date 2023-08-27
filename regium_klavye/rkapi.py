@@ -1,19 +1,19 @@
 """
-Regium Klavye 
+Regium Klavye
 
 A simple API to control settings related to RGB and keymapping for supported keyboards.
 """
 import hid
 from .keyboard_parts import Keyboard, KeyboardNotFound
 from .keyboard_profiles import PROFILES
-from .udev import get_udev, is_rules_up_to_date, setup_rules, UDEV_PATH
 
 
 def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboard]:
     """
     Returns a list of Keyboards for supported keyboards.
 
-    If a vid and/or pid value is provided it will only return keyboards found with provided values.
+    If a vid and/or pid value is provided
+    it will only return keyboards found with provided values.
 
     :param vid: Vendor ID to search keyboards with a specific vendor.
     :param pid: Product ID to specify a model of keyboard.
@@ -66,4 +66,4 @@ def get_keyboard(vid: int, pid: int) -> Keyboard:
 
 class NoKeyboardsFound(Exception):
     def __init__(self) -> None:
-        super().__init__(f"Unable to find any supported keyboards.")
+        super().__init__("Unable to find any supported keyboards.")

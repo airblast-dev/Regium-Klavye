@@ -15,7 +15,8 @@ class Keyboard:
     Represents a Keyboard for ease of use for rebinding keys and RGB controls.
 
     Iterating over this object will yield each Key that it capsulates.
-    This is to simplify setting all of the keys to an RGB value, set animations or remap keys.
+    This is to simplify setting all of the keys to an RGB value, set
+    animations or remap keys.
     """
 
     __slots__ = (
@@ -121,7 +122,10 @@ class Keyboard:
         yield from self._keys.values()
 
     def __repr__(self) -> str:
-        return f"Keyboard(name={self.name}, long_name={self.long_name}, _vid={self._vid}, _pid={self._pid})"
+        return (
+            f"Keyboard(name={self.name}, "
+            f"long_name={self.long_name}, _vid={self._vid}, _pid={self._pid})"
+        )
 
     def set_key_color(self, key: str, rgb: tuple[int, int, int]) -> None:
         """Sets RGB values for only a specific key."""
@@ -137,23 +141,29 @@ class Keyboard:
             key.set_color(rgb)
 
     def set_color_params(self, options: dict[str, int]):
-        self._current_color_params = parse_params(options, self._color_params)  # type: ignore
+        self._current_color_params = parse_params(
+            options, self._color_params  # type: ignore
+        )
 
     def _color_data(self) -> None:
         """Construct final bytes to be written for static color selection."""
         steps: list[list[int]] = self._colors["steps"]
-        #  The steps are the blank version of the data to be sent.
+        # The steps are the blank version of the data to be sent.
 
         for valid_key in self.valid_keys:
             key: Key = self._keys[valid_key]
 
-            #  Zipping results in iterating each key color index and each rgb value.
-            #  As result indexes first value is the step count and the second value is its index on that step.
-            #  Each value for indexes is an index for each color.
-            #  Basically its iterating over ((red_step, red_index), red_value), ((green_step, green_index), green_value)...
+            # Zipping results in iterating each key color index and each rgb value.
+            # As result indexes first value is the step count and the second value
+            # is its index on that step.
+            # Each value for indexes is an index for each color.
+
+            # Basically its iterating over:
+            # ((red_step, red_index), red_value),
+            # ((green_step, green_index), green_value)...
             for indexes, color in zip(key.indexes, key.get_color()):
-                step_index = indexes[0]
-                color_index = indexes[1]
+                step_index = indexes[0]  # responds to the nth list for the data.
+                color_index = indexes[1]  # responds to index in that list.
                 steps[step_index][color_index] = color
         param_base = self._colors["color_params"]["base"]
         new_param = list(param_base)
@@ -209,10 +219,13 @@ class Keyboard:
         """
         Set a specific animation with its parameters.
 
-        Options can either be provided as a dictionary or via keywords, if no option is provided defaults will be used.
-        If options are partially provided such as sleep but no speed setting. The default will be used to fill the rest in.
+        Options can either be provided as a dictionary or via keywords.
+        if no option is provided defaults will be used.
+        If options are partially provided such as sleep but no speed setting.
+        The default will be used to fill the rest in.
 
-        Keyword arguments should be only used when you already know the keyboard supports said parameter.
+        Keyword arguments should be only used when you already
+        know the keyboard supports said parameter.
         """
 
         new_options = parse_params(options, self._anim_params)  # type: ignore
@@ -249,7 +262,7 @@ class Keyboard:
         return data
 
     def apply_custom_animation(self, animation: str):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class KeyNotFoundError(Exception):
@@ -262,12 +275,14 @@ class KeyNotFoundError(Exception):
 class KeyboardNotFound(Exception):
     def __init__(self, vid: int, pid: int):
         super().__init__(
-            f"Unable to find interface with the vendor id of {vid} and product id of {pid}."
+            f"Unable to find interface with the vendor id of "
+            f"{vid} and product id of {pid}."
         )
 
 
 class AnimationNotSet(Exception):
     def __init__(self) -> None:
         super().__init__(
-            "No animation has been specified. Before calling this function you must set an animation using set_animation."
+            "No animation has been specified. Before calling this "
+            "function you must set an animation using set_animation."
         )
