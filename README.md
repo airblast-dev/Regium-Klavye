@@ -36,6 +36,6 @@ Below is currently supported CLI functionalities. For the library feel free to t
 
 Keyboards | Color | Animation | Keymapping | CustomAnimation 
 ---|---|---|---|---
- Royal Kludge RK68| :heavy_check_mark: | :white_check_mark:| :heavy_check_mark: | :white_check_mark: 
+ Royal Kludge RK68 | :heavy_check_mark: | :white_check_mark:| :heavy_check_mark: | :white_check_mark: 
  
  
