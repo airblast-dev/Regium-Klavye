@@ -23,7 +23,7 @@ def parse_params(
 
     _params = {}
     for k, v in params.items():
-        if type(v) is int:
+        if isinstance(v, int):
             _params[k] = [v]
         elif isinstance(v, (list, tuple)):
             _params[k] = v

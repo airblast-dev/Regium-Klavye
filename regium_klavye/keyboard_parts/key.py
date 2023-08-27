@@ -68,8 +68,8 @@ class Key:
                 raise TypeError(f"Expected list or tuple, found {type(index)}.")
             if len(index) != 2:
                 raise ValueError(f"Expected 2 values in index, found {len(index)}.")
-            if not all(map(lambda val: type(val) is int, index)):
-                types = (type(index[0]), type(index[1]))
+            if not all(map(lambda val: isinstance(val, int), index)):
+                types = (type(index[0]), type(index[1]))  # noqa: E721
                 raise TypeError(f"Expected 2 int's in index found {types}.")
 
         self._indexes: tuple[

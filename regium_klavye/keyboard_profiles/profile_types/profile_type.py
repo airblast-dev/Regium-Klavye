@@ -3,8 +3,9 @@ from .commands import Commands
 from .model import Model
 
 
-# The profile type is defined for hatch optimization 
+# The profile type is defined for hatch optimization
 # and support for pylance or pyright...
+
 
 class Profile(TypedDict):
     name: str

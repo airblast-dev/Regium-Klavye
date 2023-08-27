@@ -21,7 +21,7 @@ class NamedColors(Enum):
 
 
 def _parse_color(color: tuple[str] | str) -> list[int]:
-    if type(color) is str or type(color[0]) is str:
+    if isinstance(color, str) or isinstance(color[0], str):
         try:
             return list(NamedColors[color[0]].value)
         except KeyError:
@@ -306,7 +306,7 @@ def main():
                         f"{param} is an invalid animation parameter for this keyboard."
                     )
 
-                if type(choices[param]) is not str:
+                if isinstance(choices[param], str):
                     parsed_params[param] = [int(_param) for _param in choices[param]]
                 else:
                     parsed_params[param] = int(choices[param])

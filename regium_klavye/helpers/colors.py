@@ -10,9 +10,11 @@ def color_check(rgb: tuple[int, int, int]) -> None:
     if not isinstance(rgb, (tuple, list)):
         raise TypeError(f"Expected sequence of integers, found {rgb}.")
 
-    type_checks = (type(color) is int for color in rgb)
+    type_checks = (isinstance(color, int) for color in rgb)
     if not all(type_checks):
-        faulty_types = [type(color) for color in rgb if type(color) is not int]
+        faulty_types = [
+            type(color) for color in rgb if type(color) is not int  # noqa: E721
+        ]
         raise TypeError(f"Expected type int, found {faulty_types}.")
 
     rgb_validity = (color < 0 or 255 < color for color in rgb)

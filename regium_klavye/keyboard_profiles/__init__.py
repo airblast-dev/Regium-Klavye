@@ -1,4 +1,4 @@
-from .profile_types import Profile, Model, Commands
+from .profile_types import Profile
 
 
 def _create_profiles() -> dict[tuple[int, int], Profile]:
