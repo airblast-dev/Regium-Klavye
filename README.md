@@ -1,3 +1,11 @@
+<!--toc:start-->
+- [Regium Klavye: A CLI application and python library for Royal Kludge keyboards](#regium-klavye-a-cli-application-and-python-library-for-royal-kludge-keyboards)
+- [Examples:](#examples)
+  - [Command Line example:](#command-line-example)
+  - [Library Examples:](#library-examples)
+- [Supported Devices](#supported-devices)
+<!--toc:end-->
+
 ## Regium Klavye: A CLI application and python library for Royal Kludge keyboards
 ___
 ![GitHub Repo stars](https://img.shields.io/github/stars/airblast-dev/Regium-Klavye?logo=github&label=stars&color=blue)
