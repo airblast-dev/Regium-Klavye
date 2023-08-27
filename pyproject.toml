@@ -20,10 +20,7 @@ include = '''
 )
 '''
 
-[tool.flake8]
-per-file-ignores = [
-    '__init__.py:F401',
-]
-max-line-length = 88
-count = true
+[tool.ruff]
+per-file-ignores = {'__init__.py'=['F401']}
+line-length = 88
 exclude = ["profiles"]
