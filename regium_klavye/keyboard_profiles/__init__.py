@@ -1,7 +1,11 @@
-from .profile_types import Profile
+from typing import TYPE_CHECKING
 
 
-def _create_profiles() -> dict[tuple[int, int], Profile]:
+if TYPE_CHECKING:
+    from .profile_types import Profile
+
+
+def _create_profiles() -> dict[tuple[int, int], "Profile"]:
     from .profiles import RK68
 
     #  All profiles should be imported above.
@@ -9,16 +13,16 @@ def _create_profiles() -> dict[tuple[int, int], Profile]:
     local_imports = locals()
     #  Take locals right after import so we can use create and use other variables.
 
-    _profiles: dict[tuple[int, int], Profile] = dict()
+    _profiles: dict[tuple[int, int], "Profile"] = dict()
 
     for module in local_imports.values():
-        profile: Profile = module.profile
+        profile: "Profile" = module.profile
         for model in profile["models"]:
             _profiles[(model["vendor_id"], model["product_id"])] = profile
     return _profiles
 
 
-def get_profile(vid: int, pid: int) -> Profile:
+def get_profile(vid: int, pid: int) -> "Profile":
     return PROFILES[(vid, pid)]
 
 
