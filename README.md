@@ -3,6 +3,7 @@ ___
 ![GitHub Repo stars](https://img.shields.io/github/stars/airblast-dev/Regium-Klavye?logo=github&label=stars&color=blue)
 ![Discord](https://img.shields.io/discord/1144927977558253568?logo=discord&label=Discord&color=rgb(114%20137%20217))
 ![Static Badge](https://img.shields.io/badge/code_format_-black-black?color=black&link=https%3A%2F%2Fgithub.com%2Fpsf%2Fblack)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![GitHub](https://img.shields.io/github/license/airblast-dev/Regium-Klavye)
 
 Regium klavye is a CLI application and python library that allows configuration for Royal Kludge keyboards. The application is mainly tested to run on Linux but should run on Windows and Mac OS. 
