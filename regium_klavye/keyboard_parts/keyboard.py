@@ -180,7 +180,7 @@ class Keyboard:
                 The integer is the value for whatever settings that corresponds.
 
                 To get the accepted options for color settings, the
-                :attr:`~color_param_choices` property can be used.
+                :attr:`~color_params` property can be used.
         """
         for key in self:
             key.set_color(rgb)
