@@ -8,8 +8,8 @@ description = "An application and API to control supported Royal Kludge keyboard
 requires-python = ">=3.7"
 
 [build-system]
-requires = ["hidapi"]
-build-backed = "hatchling.build"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.black]
 target-version = ["py311"]
@@ -22,12 +22,14 @@ include = '''
 
 [tool.ruff]
 extend-select = [
-  "D"
+  "D", "I"
 ]
-per-file-ignores = {'__init__.py'=['F401']}
+per-file-ignores = {"__init__.py"=["F401"], "**/{keyboard_parts}/*"=["D100"], "**/{profile_types}/*"=["D101"], "version.py"=["D100"]}
+extend-ignore = ["D107"]
+fixable = ["I001"]
 line-length = 88
-exclude = ["profiles"]
+exclude = ["profiles", "docs"]
 target-version = "py311"
 
 [tool.ruff.pydocstyle]
-convention = "pep257"
+convention = "google"
