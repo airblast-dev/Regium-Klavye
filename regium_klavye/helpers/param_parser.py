@@ -1,13 +1,25 @@
-from ..keyboard_profiles.profile_types import AnimationParam, ColorParam
+"""Operations related parameter parsing."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..keyboard_profiles.profile_types import AnimationParam, ColorParam
 
 
 def parse_params(
     params: dict[str, int] | None,
     kb_params: dict[str, AnimationParam | ColorParam],
 ) -> dict[str, list[int]]:
-    """Parse parameters and fill in the missing
-    parameters in options with defaults defined in kb_option."""
+    """Parse and fill in the missing parameters.
 
+    Args:
+        params: Parameters that were passed in from a function or user.
+        kb_params: Default parameters for params to be filled in.
+
+    Raises:
+        ValueError: Extra parameter was found
+    """
     if params is None:
         default_params = {}
         for param in kb_params.keys():
@@ -21,7 +33,7 @@ def parse_params(
             f"({kb_params.keys()}. Found {sorted(extra_param)})"
         )
 
-    _params = {}
+    _params: dict[str, list[int]] = {}
     for k, v in params.items():
         if isinstance(v, int):
             _params[k] = [v]
@@ -42,7 +54,10 @@ def parse_params(
             is_valid = kb_params[param]["checks"](_params[param])  # type: ignore
         elif isinstance(kb_params[param]["checks"], (list, tuple, range)):
             is_valid = all(
-                [value in kb_params[param]["checks"] for value in _params[param]]
+                [
+                    value in kb_params[param]["checks"]  # type: ignore
+                    for value in _params[param]
+                ]
             )
         if is_valid is True:
             new_params[param] = _params[param]

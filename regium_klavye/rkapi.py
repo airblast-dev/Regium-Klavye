@@ -1,27 +1,22 @@
-"""
-Regium Klavye
-
-A simple API to control settings related to RGB and keymapping for supported keyboards.
-"""
+"""Regium Klavye is a library to control various settings for supported keyboards."""
 import hid
 
-from .keyboard_parts import Keyboard, KeyboardNotFound
+from .keyboard_parts import Keyboard
 from .keyboard_profiles import PROFILES
 
 
 def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboard]:
-    """
-    Returns a list of Keyboards for supported keyboards.
+    """Get all connected and supported keyboards.
 
-    If a vid and/or pid value is provided
-    it will only return keyboards found with provided values.
+    Providing a vendor ID will only return keyboards with matching information.
+    Providing a product ID will only return keyboards with matching information.
 
-    :param vid: Vendor ID to search keyboards with a specific vendor.
-    :param pid: Product ID to specify a model of keyboard.
-    :type vid: int
-    :type pid: int
-    :rtype: list[Keyboard]
-    :raise NoKeyboardsFound: Unable to find any supported keyboard.
+    Parameters
+    __________
+    vid: Optional[:class:`int`]
+        Vendor ID of keyboards to get.
+    pid: Optional[:class:`int`]
+        Product ID of keyboards to get.
     """
     keyboards = []
     if vid is None and pid is None:
@@ -40,17 +35,22 @@ def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboa
                 and model["usage_page"] == device["usage_page"]
             ):
                 keyboards.append(Keyboard(device["vendor_id"], device["product_id"]))
-    if not keyboards:
-        raise NoKeyboardsFound()
+    return keyboards
 
     return sorted(keyboards, key=lambda kb: kb.name + kb.long_name)
 
 
 def get_keyboard(vid: int, pid: int) -> Keyboard:
-    """
-    Returns a single Keyboard object found with the provided vid and pid.
+    """Get a single Keyboard object found with the provided vid and pid.
 
     If a supported device is not found NoKeyboardsFound exception is Raised.
+
+    Args:
+        vid: Vendor ID of keyboards to get.
+        pid: Product ID of keyboards to get.
+
+    Raises:
+        KeyboardNotFoundError: Requested keyboard was not found.
     """
     for device in hid.enumerate(vid, pid):
         dev_profile = PROFILES.get((device["vendor_id"], device["product_id"]))
@@ -62,9 +62,14 @@ def get_keyboard(vid: int, pid: int) -> Keyboard:
                 and model["usage_page"] == device["usage_page"]
             ):
                 return Keyboard(device["vendor_id"], device["product_id"])
-    raise KeyboardNotFound(vid, pid)
+    raise KeyboardNotFoundError(vid, pid)
 
 
-class NoKeyboardsFound(Exception):
-    def __init__(self) -> None:
-        super().__init__("Unable to find any supported keyboards.")
+class KeyboardNotFoundError(Exception):
+    """Raised if a single keyboard was requested but it wasnt found."""
+
+    def __init__(self, vid: int, pid: int):
+        super().__init__(
+            f"Unable to find interface with the vendor id of "
+            f"{vid} and product id of {pid}."
+        )

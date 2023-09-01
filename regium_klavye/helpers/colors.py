@@ -1,14 +1,22 @@
-def color_check(rgb: tuple[int, int, int]) -> None:
-    """
-    Checks if three values were provided.
-    Raises ValueError if any number of items other than 3 is provided.
+"""Operations related to color value checking."""
 
-    Checks if provided value is a list consisting of int's.
+from typing import Sequence
 
-    Checks if all values are between 0 and 255.
+
+def color_check(rgb: Sequence[int]) -> None:
+    """Check if provided argument is a valid RGB color value.
+
+    Raises:
+        TypeError: Non int type found in Sequence.
+            Provided value is not a Sequence.
+        ValueError: Incorrect length of values.
+            Values are bigger than 1 byte or negative.
     """
-    if not isinstance(rgb, (tuple, list)):
+    if not isinstance(rgb, Sequence):
         raise TypeError(f"Expected sequence of integers, found {rgb}.")
+
+    if (num := len(rgb)) != 3:
+        raise ValueError(f"Expected length 3 Sequence found {num} values.")
 
     type_checks = (isinstance(color, int) for color in rgb)
     if not all(type_checks):

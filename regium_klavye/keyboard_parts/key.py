@@ -2,22 +2,9 @@ from ..helpers import color_check
 
 
 class Key:
-    """
-    Represents a key on a Keyboard.
+    """Represents a key on a Keyboard.
 
-    The RGB objects color attribute can also be used to safely assign new values.
-    For example:
-        Key().rgb.color = [100, 200, 100]
-
-    key: `str`
-        Label that is printed on the key such as "A" or "ALT".
-
-    rgb: :class:`RGB`
-        RGB color class to safely check assigned values.
-
-    indexes: tuple[tuple[`int`, `int`], tuple[`int`, `int`], tuple[`int`, `int`]]
-        Each nested tuple represents the location on the base data that will be
-        sent for red green and blue colors.
+    All properties also implement setters to safely change attributes.
     """
 
     __slots__ = ("label", "_rgb", "_indexes")
@@ -33,17 +20,21 @@ class Key:
         self.rgb = rgb
 
     def __repr__(self) -> str:
+        """Get key as string."""
         return f'Key(label="{self.label}", rgb={self.rgb}, indexes={self.indexes})'
 
     def set_color(self, rgb: tuple[int, int, int]) -> None:
+        """Set color for this key."""
         color_check(rgb)
         self._rgb = rgb
 
     def get_color(self) -> tuple[int, int, int]:
+        """Get currently set color."""
         return self._rgb
 
     @property
     def rgb(self) -> tuple[int, int, int]:
+        """Color value of the key."""
         return self._rgb
 
     @rgb.setter
@@ -53,6 +44,12 @@ class Key:
 
     @property
     def indexes(self) -> tuple[tuple[int, int], tuple[int, int], tuple[int, int]]:
+        """Index of the key on the data to be sent.
+
+        Each tuple is a red, green and blue index.
+        The first value in the inner tuple is the step.
+        The second value is its index in the step.
+        """
         return self._indexes
 
     @indexes.setter

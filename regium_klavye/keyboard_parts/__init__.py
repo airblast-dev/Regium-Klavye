@@ -1,2 +1,5 @@
+"""Keyboard parts and exceptions."""
+
+
 from .key import Key
-from .keyboard import Keyboard, KeyboardNotFound
+from .keyboard import AnimationNotSetError, Keyboard, KeyNotFoundError

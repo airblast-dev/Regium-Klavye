@@ -1,10 +1,17 @@
-from typing import NotRequired, TypedDict
+"""Profile type that represents a whole profile.
 
-from .commands import Commands
-from .model import Model
+The actual profile is defined in the profiles folder. This is just for type checking.
+"""
 
-# The profile type is defined for hatch optimization
-# and support for pylance or pyright...
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, TypedDict
+
+if TYPE_CHECKING:
+    from typing import NotRequired
+
+    from .commands import Commands
+    from .model import Model
 
 
 class Profile(TypedDict):

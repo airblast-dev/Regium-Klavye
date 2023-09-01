@@ -1,14 +1,18 @@
+"""Command line interface for regium_klavye."""
+
 import argparse
 import os
 import platform
 import sys
 from enum import Enum
 
-from .rkapi import PROFILES, NoKeyboardsFound, get_keyboards
+from .rkapi import PROFILES, KeyboardNotFoundError, get_keyboards
 from .udev import UDEV_PATH, get_udev, is_rules_up_to_date, setup_rules
 
 
 class NamedColors(Enum):
+    """Named colors for ease of use."""
+
     red = (255, 0, 0)
     green = (0, 255, 0)
     blue = (0, 0, 255)
@@ -37,7 +41,7 @@ def _parse_color(color: tuple[str] | str) -> list[int]:
 
 
 def _check_linux(write=False) -> None:
-    """Performs checks for Linux based systems."""
+    """Perform checks for Linux based systems."""
     if platform.system() != "Linux":
         return
 
@@ -59,7 +63,7 @@ def _check_linux(write=False) -> None:
     return
 
 
-def main():
+def main():  # noqa: D103
     parser = argparse.ArgumentParser(
         "Regium Klavye",
         description="Regium Klavye is a command line (CLI) application for "
@@ -128,7 +132,7 @@ def main():
 
     try:
         keyboards = get_keyboards()
-    except NoKeyboardsFound:
+    except KeyboardNotFoundError:
         print("No supported keyboards detected.")
         return
 

@@ -1,4 +1,11 @@
-from typing import Callable, Literal, TypedDict
+"""Command types and their respective parameters and options."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, TypedDict
+
+if TYPE_CHECKING:
+    from typing import Callable, Literal
 
 
 class ColorParam(TypedDict):

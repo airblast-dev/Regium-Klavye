@@ -1,21 +1,30 @@
+from __future__ import annotations
+
 from time import sleep
-from typing import Iterator
+from typing import TYPE_CHECKING
 
 import hid
 
 from ..helpers import parse_params
 from ..keyboard_profiles import PROFILES
-from ..keyboard_profiles.profile_types.commands import AnimationParam
 from . import Key
+
+if TYPE_CHECKING:
+    from typing import Iterator
+
+    from ..keyboard_profiles.profile_types.commands import AnimationParam, ColorParam
 
 
 class Keyboard:
-    """
-    Represents a Keyboard for ease of use for rebinding keys and RGB controls.
+    """Represents a Keyboard for ease of use for rebinding keys and RGB controls.
 
     Iterating over this object will yield each Key that it capsulates.
     This is to simplify setting all of the keys to an RGB value, set
     animations or remap keys.
+
+    Args:
+        vid: Vendor ID of keyboards to get.
+        pid: Product ID of keyboards to get.
     """
 
     __slots__ = (
@@ -60,7 +69,6 @@ class Keyboard:
         self._anim_params = _profile["commands"]["animations"]["params"]
         self._anim_base: list[int] = _profile["commands"]["animations"]["base"]
         self._final_anim_data: bytearray
-        self._final_color_data: tuple[bytearray, ...]
         self._colors = _profile["commands"]["colors"]
         self._color_params = _profile["commands"]["colors"]["color_params"]["params"]
         self._kb_size = _profile["kb_size"]
@@ -72,74 +80,125 @@ class Keyboard:
 
     @property
     def name(self) -> str:
+        """Short name of the keyboard.
+
+        Excludes special editions and such descriptions in the name.
+        """
         return self._name
 
     @property
     def long_name(self) -> str:
+        """Long name of the keyboard.
+
+        Includes the full name of the keyboard.
+        This often includes supported connection methods or special edition naming.
+        """
         return self._model["long_name"]
 
     @property
     def valid_keys(self) -> list[str]:
+        """Get all key labels on this keyboard."""
         return sorted(self._keys.keys())
 
     @property
     def anim_options(self) -> list[str]:
+        """Get supported animation options.
+
+        This only returns the animation names supported on this keyboard.
+        """
         return sorted(self._anim_options.keys())
 
     @property
     def anim_params(self) -> dict[str, AnimationParam]:
+        """Get supported animation parameters."""
         return self._anim_params
 
     @property
-    def color_param_choices(self) -> dict[str, tuple[int, ...]]:
-        return {k: v["choices"] for k, v in self._color_params.items()}
+    def color_params(self) -> dict[str, ColorParam]:
+        """Get parameter choices for color settings."""
+        return self._color_params
 
     @property
     def has_rgb(self) -> bool:
+        """Check if keyboard supports RGB settings."""
         return self._has_rgb
 
     @property
     def has_anim(self) -> bool:
+        """Check if keyboard supports animation settings."""
         return self._has_anim
 
     @property
     def has_custom_anim(self) -> bool:
+        """Check if keyboard supports custom animations."""
         return self._has_custom_anim
 
     def __len__(self) -> int:
-        """Returns number of keys."""
+        """Get number of keys."""
         return len(self._keys)
 
     def __getitem__(self, key: str) -> Key:
-        """
-        Get corresponding Key object with the key label provided.
-        """
+        """Get corresponding Key object with the key label provided."""
         return self._keys[key]
 
     def __iter__(self) -> Iterator[Key]:
-        """Yields each key found on the keyboard."""
+        """Iterate over each key found on the keyboard."""
         yield from self._keys.values()
 
     def __repr__(self) -> str:
+        """Get keyboard as string."""
         return (
             f"Keyboard(name={self.name}, "
             f"long_name={self.long_name}, _vid={self._vid}, _pid={self._pid})"
         )
 
     def set_key_color(self, key: str, rgb: tuple[int, int, int]) -> None:
-        """Sets RGB values for only a specific key."""
+        """Set RGB values for only a specific key.
 
+        Args:
+            key: Label for the specified key.
+            rgb: Red green and blue value.
+        """
         if key in self.valid_keys:
             self[key].set_color(rgb)
             return
         raise KeyNotFoundError(self.name, key)
 
-    def set_color(self, rgb: tuple[int, int, int]) -> None:
-        """Set all key objects present to the provided color."""
+    def set_color(
+        self, rgb: tuple[int, int, int], options: dict[str, int] | None = None
+    ) -> None:
+        """Set all key objects present to the provided color.
+
+        Args:
+            rgb: Red green and blue values.
+
+            options: A dictionary of options for the color setting.
+                The string value (depending on what options the keyboard can provide)
+                can be "sleep" or something alike depending on what is available for the
+                keyboard.
+
+                The integer is the value for whatever settings that corresponds.
+
+                To get the accepted options for color settings, the
+                :attr:`~color_param_choices` property can be used.
+        """
         for key in self:
             key.set_color(rgb)
 
+        parse_params(options, self._color_params)  # type: ignore
+
     def set_color_params(self, options: dict[str, int]):
+        """Set color parameters.
+
+        Args:
+            options: A dictionary of options for the color setting.
+
+                The string value (depending on what options the keyboard can provide)
+                can be "sleep" or something alike depending on what is available for the
+                keyboard.
+
+                The integer is the value for whatever settings that corresponds.
+        """
         self._current_color_params = parse_params(
             options, self._color_params  # type: ignore
         )
@@ -148,10 +207,8 @@ class Keyboard:
         """Construct final bytes to be written for static color selection."""
         steps: list[list[int]] = self._colors["steps"]
         # The steps are the blank version of the data to be sent.
-
         for valid_key in self.valid_keys:
             key: Key = self._keys[valid_key]
-
             # Zipping results in iterating each key color index and each rgb value.
             # As result indexes first value is the step count and the second value
             # is its index on that step.
@@ -164,6 +221,7 @@ class Keyboard:
                 step_index = indexes[0]  # responds to the nth list for the data.
                 color_index = indexes[1]  # responds to index in that list.
                 steps[step_index][color_index] = color
+
         param_base = self._colors["color_params"]["base"]
         new_param = list(param_base)
         for param in self._current_color_params.values():
@@ -177,8 +235,7 @@ class Keyboard:
         self,
         rgb: tuple[int, int, int] | None = None,
     ) -> tuple[bytearray, ...]:
-        """
-        Write the final data to the interface.
+        """Write the final data to the interface.
 
         An rgb can also be provided to set and apply with a single call.
         The rgb value (if provided) will be applied to all keys.
@@ -215,18 +272,21 @@ class Keyboard:
         anim_name: str,
         options: dict[str, int] | None = None,
     ) -> None:
-        """
-        Set a specific animation with its parameters.
+        """Set a specific animation with its parameters.
 
-        Options can either be provided as a dictionary or via keywords.
-        if no option is provided defaults will be used.
+        If no option is provided defaults will be used.
         If options are partially provided such as sleep but no speed setting.
         The default will be used to fill the rest in.
 
         Keyword arguments should be only used when you already
         know the keyboard supports said parameter.
-        """
 
+        Args:
+            anim_name: To get the accepted animation names for this keyboard, the
+                :attr:`~anim_options` property can be used.
+            options: To get the accepted animation parameters for this keyboard, the
+                :attr:`~anim_params` property can be used.
+        """
         new_options = parse_params(options, self._anim_params)  # type: ignore
 
         anim_data: list[int] = self._anim_base + self._anim_options[anim_name]["value"]
@@ -240,7 +300,7 @@ class Keyboard:
     def apply_animation(self) -> bytearray:
         """Apply the previously set animation to the keyboard."""
         if not self._final_anim_data:
-            raise AnimationNotSet
+            raise AnimationNotSetError
         for interface in hid.enumerate():
             if (
                 interface["usage_page"] != self._model["usage_page"]
@@ -261,6 +321,7 @@ class Keyboard:
         return data
 
     def apply_custom_animation(self, animation: str):
+        """TODO"""  # noqa
         raise NotImplementedError
 
 
@@ -271,15 +332,9 @@ class KeyNotFoundError(Exception):
         super().__init__(f"The {key} key was not found on {keyboard_model}.")
 
 
-class KeyboardNotFound(Exception):
-    def __init__(self, vid: int, pid: int):
-        super().__init__(
-            f"Unable to find interface with the vendor id of "
-            f"{vid} and product id of {pid}."
-        )
+class AnimationNotSetError(Exception):
+    """Raised if an animation is applied without setting first."""
 
-
-class AnimationNotSet(Exception):
     def __init__(self) -> None:
         super().__init__(
             "No animation has been specified. Before calling this "

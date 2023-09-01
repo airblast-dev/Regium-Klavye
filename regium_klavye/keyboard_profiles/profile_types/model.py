@@ -1,3 +1,5 @@
+"""Model type for variations of different models for the same keyboard."""
+
 from typing import TypedDict
 
 

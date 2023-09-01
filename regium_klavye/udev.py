@@ -1,3 +1,5 @@
+"""Common functions for rule generation."""
+
 from .keyboard_profiles import PROFILES
 from .version import VERSION
 
@@ -21,7 +23,7 @@ def _construct_comment(name: str, long_name: tuple[str, ...]) -> str:
 
 
 def _construct_rules() -> tuple[str, ...]:
-    """Returns tuple of rules for each single vendor id and product id."""
+    """Create tuple of rules for each single vendor id and product id."""
     return tuple(map(_construct_rule, PROFILES.keys()))
 
 
@@ -36,17 +38,16 @@ def _construct_comments() -> list[str]:
 
 
 def get_udev() -> str:
-    """
-    Generate udev rules.
+    """Generate udev rules.
 
-    Example result:
-    # This file should not be edited manually.
-    # Run this command "regium_klavye udev -w" as root.
-    # VERSION= current-version
-
-    # Rules for device Royal Kludge RK68. ('Royal Kludge RK68 BT and USB',)
-    SUBSYSTEM=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
-    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
+    Example:
+        # This file should not be edited manually.
+        # Run this command "regium_klavye udev -w" as root.
+        # VERSION= current-version
+    
+        # Rules for device Royal Kludge RK68. ('Royal Kludge RK68 BT and USB',)
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
+        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
     """
     info_text = (
         f"# Regium Klavye {VERSION}\n# This file should not be edited manually.\n"
@@ -78,6 +79,7 @@ def setup_rules(path=UDEV_PATH) -> None:
 
 
 def is_rules_up_to_date(path=UDEV_PATH) -> bool:
+    """Check if rules are up to date."""
     from os.path import isfile
 
     if not isfile(path):
