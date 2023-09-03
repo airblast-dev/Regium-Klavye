@@ -8,7 +8,7 @@ profile = {
             "connection_protocols": ("USB", "BT"),
             "vendor_id": 0x0258A,
             "product_id": 0x005E,
-            "endpoint": 0x00,
+            "endpoint": 0x01,
             "usage": 128,
             "usage_page": 1,
             "has_rgb": True,
