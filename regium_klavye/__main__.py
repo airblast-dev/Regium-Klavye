@@ -258,10 +258,10 @@ def main():  # noqa: D103
                     keyboard.long_name + "\n" + " - " + ", ".join(valid_commands)
                 )
             print("\n".join(supported_devices))
-    elif len(keyboards) - 1 > choices["device"]:
+    elif len(keyboards) - 1 < choices["device"]:
         sys.exit(
-            'Invalid device number provided. Use "regium_klavye list" for a list of '
-            "supported and detected devices."
+            "Invalid device number provided or device not supported. "
+            'Use "regium_klavye list" for a list of supported and detected devices.'
         )
 
     if choices["command"] == "set-color":
