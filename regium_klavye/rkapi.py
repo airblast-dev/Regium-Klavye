@@ -30,10 +30,7 @@ def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboa
         if dev_profile is None:
             continue
         for model in dev_profile["models"]:
-            if (
-                model["usage"] == device["usage"]
-                and model["usage_page"] == device["usage_page"]
-            ):
+            if device["interface_number"] == model["endpoint"]:
                 keyboards.append(Keyboard(device["vendor_id"], device["product_id"]))
     return keyboards
 
@@ -57,10 +54,7 @@ def get_keyboard(vid: int, pid: int) -> Keyboard:
         if dev_profile is None:
             continue
         for model in dev_profile["models"]:
-            if (
-                model["usage"] == device["usage"]
-                and model["usage_page"] == device["usage_page"]
-            ):
+            if device["interface_number"] == model["endpoint"]:
                 return Keyboard(device["vendor_id"], device["product_id"])
     raise KeyboardNotFoundError(vid, pid)
 

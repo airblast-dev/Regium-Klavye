@@ -10,7 +10,7 @@ from ..keyboard_profiles import PROFILES
 from . import Key
 
 if TYPE_CHECKING:
-    from typing import Iterator
+    from typing import Callable, Iterator
 
     from ..keyboard_profiles.profile_types.commands import AnimationParam, ColorParam
 
@@ -244,10 +244,7 @@ class Keyboard:
             self.set_color(rgb)
         self._color_data()
         for interface in hid.enumerate(self._vid, self._pid):
-            if (
-                interface["usage_page"] != self._model["usage_page"]
-                or interface["usage"] != self._model["usage"]
-            ):
+            if interface["interface_number"] != self._model["endpoint"]:
                 continue
             dev = hid.device()
             dev.open_path(interface["path"])
@@ -302,10 +299,7 @@ class Keyboard:
         if not self._final_anim_data:
             raise AnimationNotSetError
         for interface in hid.enumerate():
-            if (
-                interface["usage_page"] != self._model["usage_page"]
-                or interface["usage"] != self._model["usage"]
-            ):
+            if interface["interface_number"] != self._model["endpoint"]:
                 continue
             dev = hid.device()
             dev.open_path(interface["path"])
@@ -324,7 +318,6 @@ class Keyboard:
         """TODO"""  # noqa
         raise NotImplementedError
 
-
 class KeyNotFoundError(Exception):
     """Raised if a key is not found on a keyboard."""
 
@@ -335,8 +328,9 @@ class KeyNotFoundError(Exception):
 class AnimationNotSetError(Exception):
     """Raised if an animation is applied without setting first."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__(
             "No animation has been specified. Before calling this "
             "function you must set an animation using set_animation."
         )
+
