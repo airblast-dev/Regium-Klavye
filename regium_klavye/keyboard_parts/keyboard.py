@@ -318,6 +318,7 @@ class Keyboard:
         """TODO"""  # noqa
         raise NotImplementedError
 
+
 class KeyNotFoundError(Exception):
     """Raised if a key is not found on a keyboard."""
 
@@ -333,4 +334,3 @@ class AnimationNotSetError(Exception):
             "No animation has been specified. Before calling this "
             "function you must set an animation using set_animation."
         )
-
