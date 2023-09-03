@@ -41,13 +41,13 @@ def get_udev() -> str:
     """Generate udev rules.
 
     Example:
-        # This file should not be edited manually.
-        # Run this command "regium_klavye udev -w" as root.
-        # VERSION= current-version
-    
-        # Rules for device Royal Kludge RK68. ('Royal Kludge RK68 BT and USB',)
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
+    # This file should not be edited manually.
+    # Run this command "regium_klavye udev -w" as root.
+    # VERSION= current-version
+
+    # Rules for device Royal Kludge RK68. ('Royal Kludge RK68 BT and USB',)
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="005e", MODE="0666"
     """
     info_text = (
         f"# Regium Klavye {VERSION}\n# This file should not be edited manually.\n"
