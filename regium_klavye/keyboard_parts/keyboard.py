@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 
 import hid
 
-from ..helpers import parse_params
+from ..helpers import color_check, parse_params
 from ..keyboard_profiles import PROFILES
 from . import Key
 
 if TYPE_CHECKING:
-    from typing import Callable, Iterator
+    from typing import Iterator
 
     from ..keyboard_profiles.profile_types.commands import AnimationParam, ColorParam
 
@@ -160,7 +160,7 @@ class Keyboard:
             rgb: Red green and blue value.
         """
         if key in self.valid_keys:
-            self[key].set_color(rgb)
+            self[key].rgb = rgb
             return
         raise KeyNotFoundError(self.name, key)
 
@@ -182,8 +182,9 @@ class Keyboard:
                 To get the accepted options for color settings, the
                 :attr:`~color_params` property can be used.
         """
+        color_check(rgb)
         for key in self:
-            key.set_color(rgb)
+            key._rgb = rgb
 
         parse_params(options, self._color_params)  # type: ignore
 
@@ -217,7 +218,7 @@ class Keyboard:
             # Basically its iterating over:
             # ((red_step, red_index), red_value),
             # ((green_step, green_index), green_value)...
-            for indexes, color in zip(key.indexes, key.get_color()):
+            for indexes, color in zip(key.indexes, key.rgb):
                 step_index = indexes[0]  # responds to the nth list for the data.
                 color_index = indexes[1]  # responds to index in that list.
                 steps[step_index][color_index] = color
@@ -240,16 +241,17 @@ class Keyboard:
         An rgb can also be provided to set and apply with a single call.
         The rgb value (if provided) will be applied to all keys.
         """
+        color_check(rgb)
         if rgb:
             self.set_color(rgb)
         self._color_data()
+        report_type: int = self._colors["report_type"]
         for interface in hid.enumerate(self._vid, self._pid):
             if interface["interface_number"] != self._model["endpoint"]:
                 continue
             dev = hid.device()
             dev.open_path(interface["path"])
             dev.set_nonblocking(True)
-            report_type: int = self._colors["report_type"]
 
             for data in self._final_color_data:
                 if report_type == 0x02:
@@ -258,7 +260,7 @@ class Keyboard:
                     dev.write(data)
 
                 #  Writing data too fast can cause incorrect settings to be set.
-                sleep(0.01)
+                sleep(0.005)
 
             dev.close()
             break
@@ -267,7 +269,7 @@ class Keyboard:
     def set_animation(
         self,
         anim_name: str,
-        options: dict[str, int] | None = None,
+        options: dict[str, int | list[int]] | None = None,
     ) -> None:
         """Set a specific animation with its parameters.
 
@@ -298,21 +300,20 @@ class Keyboard:
         """Apply the previously set animation to the keyboard."""
         if not self._final_anim_data:
             raise AnimationNotSetError
-        for interface in hid.enumerate():
+        report_type = self._colors["report_type"]
+        for interface in hid.enumerate(self._vid, self._pid):
             if interface["interface_number"] != self._model["endpoint"]:
                 continue
             dev = hid.device()
             dev.open_path(interface["path"])
-            report_type = self._colors["report_type"]
             if report_type == 0x02:
                 dev.send_feature_report(self._final_anim_data)
             elif report_type == 0x03:
                 dev.write(self._final_anim_data)
 
             dev.close()
-            sleep(0.01)
-        data = self._final_anim_data
-        return data
+            break
+        return self._final_anim_data
 
     def apply_custom_animation(self, animation: str):
         """TODO"""  # noqa
