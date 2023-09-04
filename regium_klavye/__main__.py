@@ -171,8 +171,8 @@ def main():  # noqa: D103
 
     all_anim_params: set[str] = set()
     for profile in PROFILES.values():
-        params = profile["commands"]["animations"]["params"].keys()
-        all_anim_params.update(params)
+        anim_params = profile["commands"]["animations"]["params"].keys()
+        all_anim_params.update(anim_params)
 
     # Iterate over all profiles and get length of argument
     for param in all_anim_params:
@@ -191,7 +191,7 @@ def main():  # noqa: D103
                 "--" + param,
                 required=False,
                 default=False,
-                **arg_len_params,
+                **arg_len_params,  # type: ignore
             )
 
     choices = vars(parser.parse_args())
@@ -231,12 +231,14 @@ def main():  # noqa: D103
                 for profile in profiles
             }
 
-            supported_devices = "Full list of supported devices for Regium Klavye\n\n"
+            supported_devices = ["Full list of supported devices for Regium Klavye\n\n"]
 
             for name, models in device_list.items():
-                supported_devices += (
-                    f"Supported Models for {name}" + ":\n" + "\n - ".join([""] + models)
-                )
+                formatted_model = [
+                    f"Supported Models for {name} \n"
+                    ":\n" + "\n - ".join([""] + models)
+                ]
+                supported_devices.extend(formatted_model)
 
             print(supported_devices)
         else:
@@ -283,15 +285,15 @@ def main():  # noqa: D103
 
                 options = f'Options: {", ".join(keyboard.anim_options)}'
 
-                params = []
+                params: list[str] = []
                 for param in keyboard.anim_params:
                     params.append(
                         f"{keyboard.anim_params[param]['description']} "
                         f"--{param} {keyboard.anim_params[param]['choices']}"
                     )
-                params = "Parameters:\n\t[" + str("]\n\t[".join(params)) + "]"
+                final_params = "Parameters:\n\t[" + str("]\n\t[".join(params)) + "]"
                 explanation = (
-                    f"{'-' * len(long_name)}\n{long_name}\n{options}\n{params}"
+                    f"{'-' * len(long_name)}\n{long_name}\n{options}\n{final_params}"
                 )
 
                 anim_options.append(explanation)
@@ -299,7 +301,7 @@ def main():  # noqa: D103
         else:
             if choices["animation"] not in keyboard.anim_options:
                 sys.exit(f"Invalid animation provided for {keyboard.long_name}.")
-            parsed_params = {}
+            parsed_params: dict[str, int | list[int]] = {}
             for param in keyboard.anim_params:
                 if choices[param] is False:
                     continue
