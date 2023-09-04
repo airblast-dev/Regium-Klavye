@@ -32,9 +32,8 @@ def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboa
         for model in dev_profile["models"]:
             if device["interface_number"] == model["endpoint"]:
                 keyboards.append(Keyboard(device["vendor_id"], device["product_id"]))
+    keyboards.sort(key=lambda kb: kb.name + kb.long_name)
     return keyboards
-
-    return sorted(keyboards, key=lambda kb: kb.name + kb.long_name)
 
 
 def get_keyboard(vid: int, pid: int) -> Keyboard:
