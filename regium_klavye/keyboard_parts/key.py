@@ -23,15 +23,6 @@ class Key:
         """Get key as string."""
         return f'Key(label="{self.label}", rgb={self.rgb}, indexes={self.indexes})'
 
-    def set_color(self, rgb: tuple[int, int, int]) -> None:
-        """Set color for this key."""
-        color_check(rgb)
-        self._rgb = rgb
-
-    def get_color(self) -> tuple[int, int, int]:
-        """Get currently set color."""
-        return self._rgb
-
     @property
     def rgb(self) -> tuple[int, int, int]:
         """Color value of the key."""
