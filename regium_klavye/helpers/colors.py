@@ -3,7 +3,7 @@
 from typing import Sequence
 
 
-def color_check(rgb: Sequence[int]) -> None:
+def color_check(rgb: Sequence[int] | None) -> None:
     """Check if provided argument is a valid RGB color value.
 
     Raises:
@@ -12,6 +12,8 @@ def color_check(rgb: Sequence[int]) -> None:
         ValueError: Incorrect length of values.
             Values are bigger than 1 byte or negative.
     """
+    if rgb is None:
+        return
     if not isinstance(rgb, Sequence):
         raise TypeError(f"Expected sequence of integers, found {rgb}.")
 
