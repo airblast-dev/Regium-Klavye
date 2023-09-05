@@ -5,18 +5,28 @@ from .keyboard_parts import Keyboard
 from .keyboard_profiles import PROFILES
 
 
+def _filter_device(device: dict) -> bool:
+    valid_device_ids = set(PROFILES.keys())
+    if (vid := device["vendor_id"], pid := device["product_id"]) in valid_device_ids:
+        for model in PROFILES[(vid, pid)]["models"]:
+            if model["endpoint"] == device["interface_number"]:
+                return True
+    return False
+
+
 def _enumerate_devices(vid: int | None = None, pid: int | None = None) -> list[dict]:
     match vid, pid:
         case None, None:
-            return hid.enumerate()
+            devices = hid.enumerate()
         case int(vid), None:
-            return hid.enumerate(vid)
+            devices = hid.enumerate(vid)
         case int(vid), int(pid):
-            return hid.enumerate(vid, pid)
+            devices = hid.enumerate(vid, pid)
         case _, int(pid):
             raise ValueError("Cannot take product id without vendor id.")
         case _:
             raise TypeError(f"Expected int or None, found {type(vid)} and {type(pid)}")
+    return [device for device in devices if _filter_device(device)]
 
 
 def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboard]:
@@ -31,15 +41,12 @@ def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboa
         pid: Optional[:class:`int`]
             Product ID of keyboards to get.
     """
-    keyboards = []
-    for device in _enumerate_devices(vid, pid):
-        dev_profile = PROFILES.get((device["vendor_id"], device["product_id"]))
-        if dev_profile is None:
-            continue
-        for model in dev_profile["models"]:
-            if device["interface_number"] == model["endpoint"]:
-                keyboards.append(Keyboard(device["vendor_id"], device["product_id"]))
+    keyboards = [
+        Keyboard(device["vendor_id"], device["product_id"])
+        for device in _enumerate_devices(vid, pid)
+    ]
     keyboards.sort(key=lambda kb: kb.name + kb.long_name)
+
     return keyboards
 
 
@@ -57,12 +64,8 @@ def get_keyboard(vid: int, pid: int | None = None) -> Keyboard:
         KeyboardNotFoundError: Requested keyboard was not found.
     """
     for device in _enumerate_devices(vid, pid):
-        dev_profile = PROFILES.get((device["vendor_id"], device["product_id"]))
-        if dev_profile is None:
-            continue
-        for model in dev_profile["models"]:
-            if device["interface_number"] == model["endpoint"]:
-                return Keyboard(device["vendor_id"], device["product_id"])
+        return Keyboard(device["vendor_id"], device["product_id"])
+
     raise KeyboardNotFoundError(vid, pid)
 
 
