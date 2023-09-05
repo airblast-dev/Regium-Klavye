@@ -47,13 +47,15 @@ class Keyboard:
         "_has_rgb",
         "_has_anim",
         "_has_custom_anim",
+        "_path"
     )
 
-    def __init__(self, vid: int, pid: int):
+    def __init__(self, vid: int, pid: int, path: bytes):
         _profile = PROFILES[(vid, pid)]
         self._name: str = _profile["name"]
         self._vid: int = vid
         self._pid: int = pid
+        self._path = path
 
         self._keys: dict[str, Key] = {
             key[0]: Key(*key) for key in _profile["present_keys"]
@@ -246,24 +248,24 @@ class Keyboard:
             self.set_color(rgb)
         self._color_data()
         report_type: int = self._colors["report_type"]
-        for interface in hid.enumerate(self._vid, self._pid):
-            if interface["interface_number"] != self._model["endpoint"]:
-                continue
-            dev = hid.device()
-            dev.open_path(interface["path"])
-            dev.set_nonblocking(True)
+        
+        dev = hid.device()
+        dev.open_path(self._path)                
+        dev.set_nonblocking(True)
+            
+        match report_type:
+            case 0x02:
+                write_data = dev.send_feature_report
+            case 0x03:
+                write_data = dev.write
+                
+        for data in self._final_color_data: 
+            write_data(data)
 
-            for data in self._final_color_data:
-                if report_type == 0x02:
-                    dev.send_feature_report(data)
-                elif report_type == 0x03:
-                    dev.write(data)
+            #  Writing data too fast can cause incorrect settings to be set.
+            sleep(0.005)
 
-                #  Writing data too fast can cause incorrect settings to be set.
-                sleep(0.005)
-
-            dev.close()
-            break
+        dev.close()
         return self._final_color_data
 
     def set_animation(

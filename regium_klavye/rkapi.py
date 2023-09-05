@@ -42,7 +42,7 @@ def get_keyboards(vid: int | None = None, pid: int | None = None) -> list[Keyboa
             Product ID of keyboards to get.
     """
     keyboards = [
-        Keyboard(device["vendor_id"], device["product_id"])
+        Keyboard(device["vendor_id"], device["product_id"], device["path"])
         for device in _enumerate_devices(vid, pid)
     ]
     keyboards.sort(key=lambda kb: kb.name + kb.long_name)
@@ -64,7 +64,7 @@ def get_keyboard(vid: int, pid: int | None = None) -> Keyboard:
         KeyboardNotFoundError: Requested keyboard was not found.
     """
     for device in _enumerate_devices(vid, pid):
-        return Keyboard(device["vendor_id"], device["product_id"])
+        return Keyboard(device["vendor_id"], device["product_id"], device["path"])
 
     raise KeyboardNotFoundError(vid, pid)
 
