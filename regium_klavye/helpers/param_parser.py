@@ -1,7 +1,7 @@
 """Operations related parameter parsing."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from ..keyboard_profiles.profile_types import AnimationParam, ColorParam
@@ -47,21 +47,14 @@ def parse_params(
             new_params[param] = kb_params[param]["default"]
             continue
 
-        # Check if provided value is in accepted parameter.
-        if callable(kb_params[param]["checks"]):
-            # Below is type ignored as type checkers include the range functions
-            # return value as a callable.
-            is_valid = kb_params[param]["checks"](_params[param])  # type: ignore
-        elif isinstance(kb_params[param]["checks"], (list, tuple, range)):
-            is_valid = all(
-                [
-                    value in kb_params[param]["checks"]  # type: ignore
-                    for value in _params[param]
-                ]
-            )
-        if is_valid is True:
-            new_params[param] = _params[param]
-            continue
-        raise ValueError(f"Invalid value provided for {param}.")
+        match kb_params[param]["checks"]:
+            case func if isinstance(func, Callable):
+                is_valid = func(_params[param])
+            case list() | range() | tuple() as in_check:
+                is_valid = all([value in in_check for value in _params[param]])
+            case _ if not is_valid:
+                raise ValueError(f"Invalid value provided for {param}.")
+
+        new_params[param] = _params[param]
 
     return new_params
