@@ -15,7 +15,7 @@ def _enumerate_devices(vid: int | None = None, pid: int | None = None) -> list[d
             return hid.enumerate(vid, pid)
         case _, int(pid):
             raise ValueError("Cannot take product id without vendor id.")
-        case _, _:
+        case _:
             raise TypeError(f"Expected int or None, found {type(vid)} and {type(pid)}")
 
 
