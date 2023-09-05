@@ -3,7 +3,7 @@
 from typing import Sequence
 
 
-def color_check(rgb: Sequence[int] | None) -> None:
+def validate_color(rgb: Sequence[int] | None) -> None:
     """Check if provided argument is a valid RGB color value.
 
     Raises:
@@ -12,21 +12,19 @@ def color_check(rgb: Sequence[int] | None) -> None:
         ValueError: Incorrect length of values.
             Values are bigger than 1 byte or negative.
     """
-    if rgb is None:
-        return
+    match rgb:
+        case None:
+            return
+        case [int(), int(), int()] if all([0 <= c <= 255 for c in rgb]):
+            return
+
     if not isinstance(rgb, Sequence):
-        raise TypeError(f"Expected sequence of integers, found {rgb}.")
+        raise TypeError(f"Expected tuple or list, found {rgb}")
+    if (rgb_len := len(rgb)) != 3:
+        raise ValueError(f"Expected length 3 Sequence found {rgb_len} values.")
 
-    if (num := len(rgb)) != 3:
-        raise ValueError(f"Expected length 3 Sequence found {num} values.")
-
-    type_checks = (isinstance(color, int) for color in rgb)
-    if not all(type_checks):
-        faulty_types = [
-            type(color) for color in rgb if type(color) is not int  # noqa: E721
-        ]
-        raise TypeError(f"Expected type int, found {faulty_types}.")
-
-    rgb_validity = (color < 0 or 255 < color for color in rgb)
-    if any(rgb_validity):
-        raise ValueError("Color values must be between 0 and 255.")
+    for color in rgb:
+        if not isinstance(color, int):
+            raise TypeError(f"Expected sequence of integers, found {rgb}.")
+        if 0 <= color <= 255:
+            raise ValueError("Color values must be between 0 and 255.")
