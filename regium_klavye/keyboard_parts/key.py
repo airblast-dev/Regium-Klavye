@@ -1,4 +1,4 @@
-from ..helpers import color_check
+from ..helpers import validate_color
 
 
 class Key:
@@ -30,7 +30,7 @@ class Key:
 
     @rgb.setter
     def rgb(self, val: tuple[int, int, int]) -> None:
-        color_check(val)
+        validate_color(val)
         self._rgb: tuple[int, int, int] = val
 
     @property

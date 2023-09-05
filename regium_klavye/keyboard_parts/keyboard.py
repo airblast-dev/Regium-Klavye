@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import hid
 
-from ..helpers import color_check, parse_params
+from ..helpers import parse_params, validate_color
 from ..keyboard_profiles import PROFILES
 from . import Key
 
@@ -182,7 +182,7 @@ class Keyboard:
                 To get the accepted options for color settings, the
                 :attr:`~color_params` property can be used.
         """
-        color_check(rgb)
+        validate_color(rgb)
         for key in self:
             key._rgb = rgb
 
@@ -241,7 +241,7 @@ class Keyboard:
         An rgb can also be provided to set and apply with a single call.
         The rgb value (if provided) will be applied to all keys.
         """
-        color_check(rgb)
+        validate_color(rgb)
         if rgb:
             self.set_color(rgb)
         self._color_data()
