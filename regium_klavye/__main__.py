@@ -305,16 +305,11 @@ def main():  # noqa: D103
             for param in keyboard.anim_params:
                 if choices[param] is False:
                     continue
-                if param not in keyboard.anim_params:
-                    sys.exit(
-                        f"Invalid parameter provided. "
-                        f"{param} is an invalid animation parameter for this keyboard."
-                    )
 
-                if isinstance(choices[param], str):
+                try:
                     parsed_params[param] = [int(_param) for _param in choices[param]]
-                else:
-                    parsed_params[param] = int(choices[param])
+                except ValueError:
+                    sys.exit(f"Invalid argument provided for {param}.")
             try:
                 keyboard.set_animation(choices["animation"], parsed_params)
             except ValueError:
