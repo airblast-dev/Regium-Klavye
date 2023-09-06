@@ -1,6 +1,7 @@
 """Command types and their respective parameters and options."""
 
 from __future__ import annotations
+from collections.abc import Sequence
 
 from typing import TYPE_CHECKING, TypedDict
 
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class ColorParam(TypedDict):
-    checks: Callable[[list[int]], bool] | list[int] | range
+    checks: Callable[[Sequence[int]], bool] | Sequence[int]
     # Check to be done to confirm provided value is valid.
 
     default: list[int]
@@ -57,7 +58,7 @@ class AnimationOption(TypedDict):
 
 
 class AnimationParam(TypedDict):
-    checks: Callable[[list[int]], bool] | list[int] | range
+    checks: Callable[[Sequence[int]], bool] | Sequence[int]
     # If a callable is provided it is used
     # by providing the value that will be checked as argument.
     # Any other value is checked for inclusion for each parameter value.

@@ -1,60 +1,68 @@
 """Operations related parameter parsing."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
     from ..keyboard_profiles.profile_types import AnimationParam, ColorParam
 
 
 def parse_params(
-    params: dict[str, int] | None,
-    kb_params: dict[str, AnimationParam | ColorParam],
+    params: dict[str, Sequence[int]] | None,
+    base_params: dict[str, AnimationParam | ColorParam],
 ) -> dict[str, list[int]]:
     """Parse and fill in the missing parameters.
 
     Args:
         params: Parameters that were passed in from a function or user.
-        kb_params: Default parameters for params to be filled in.
+        base_params: Default parameters for params to be filled in.
 
     Raises:
-        ValueError: Extra parameter was found
+        ValueError: Extra parameter was found.
     """
     if params is None:
         default_params = {}
-        for param in kb_params.keys():
-            default_params[param] = kb_params[param]["default"]
+        for param in base_params.keys():
+            default_params[param] = base_params[param]["default"]
         return default_params
 
-    if (param_s := set(params.keys())) != (color_param_s := set(kb_params)):
-        extra_param = param_s - color_param_s
+    if (param_s := set(params)) != (base_params_s := set(base_params)):
+        extra_params = param_s - base_params_s
         ValueError(
             f"Expected one or more from "
-            f"({kb_params.keys()}. Found {sorted(extra_param)})"
+            f"({base_params.keys()}. Found {sorted(extra_params)})"
         )
 
-    _params: dict[str, list[int]] = {}
-    for k, v in params.items():
-        if isinstance(v, int):
-            _params[k] = [v]
-        elif isinstance(v, (list, tuple)):
-            _params[k] = v
+    _params: dict[str, Sequence[int]] = {}
 
     new_params = {}
-    for param in kb_params.keys():
-        is_valid: bool = False
-        if param not in _params.keys():
-            new_params[param] = kb_params[param]["default"]
+    for param in base_params:
+        is_valid = False
+        if param not in params:
+            new_params[param] = base_params[param]["default"]
             continue
 
-        match kb_params[param]["checks"]:
-            case func if isinstance(func, Callable):
-                is_valid = func(_params[param])
-            case list() | range() | tuple() as in_check:
-                is_valid = all([value in in_check for value in _params[param]])
-            case _ if not is_valid:
-                raise ValueError(f"Invalid value provided for {param}.")
+        param_val = params[param]
+        base_param_val = base_params[param]["default"]
+        
+        if isinstance(param_val, Sequence) \
+        and len(param_val) == len(base_param_val)\
+        and all([isinstance(val, int) for val in param_val]):
+            _params[param] = list(param_val)
+        else:
+            raise ValueError(f"Invalid value provided for {param}.")
 
-        new_params[param] = _params[param]
+        match base_params[param]["checks"]:
+            case list() | range() | tuple() as in_check if len(_params[param]) == len(
+                base_params[param]["default"]
+            ):
+                is_valid = all([value in in_check for value in _params[param]])
+            case func if callable(func):
+                is_valid = func(_params[param])
+
+        if is_valid is not True:
+            raise ValueError(f"Invalid value provided for {param}.")
+
+        new_params[param] = params[param]
 
     return new_params
