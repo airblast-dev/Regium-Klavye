@@ -1,8 +1,8 @@
 """Command types and their respective parameters and options."""
 
 from __future__ import annotations
-from collections.abc import Sequence
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:

@@ -306,7 +306,7 @@ class Keyboard:
 
         dev = hid.device()
         dev.open_path(self._path)
-        
+
         if report_type == 0x02:
             dev.send_feature_report(self._final_anim_data)
         elif report_type == 0x03:

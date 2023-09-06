@@ -44,10 +44,12 @@ def parse_params(
 
         param_val = params[param]
         base_param_val = base_params[param]["default"]
-        
-        if isinstance(param_val, Sequence) \
-        and len(param_val) == len(base_param_val)\
-        and all([isinstance(val, int) for val in param_val]):
+
+        if (
+            isinstance(param_val, Sequence)
+            and len(param_val) == len(base_param_val)
+            and all([isinstance(val, int) for val in param_val])
+        ):
             _params[param] = list(param_val)
         else:
             raise ValueError(f"Invalid value provided for {param}.")
