@@ -1,13 +1,18 @@
 """Command line interface for regium_klavye."""
+from __future__ import annotations
 
-import argparse
 import os
 import platform
 import sys
+from argparse import ArgumentParser
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from .rkapi import PROFILES, KeyboardNotFoundError, get_keyboards
 from .udev import UDEV_PATH, get_udev, is_rules_up_to_date, setup_rules
+
+if TYPE_CHECKING:
+    from typing import Any, NoReturn
 
 
 class NamedColors(Enum):
@@ -63,8 +68,129 @@ def _check_linux(write=False) -> None:
     return
 
 
-def main():  # noqa: D103
-    parser = argparse.ArgumentParser(
+def _handle_udev(udev_parser: ArgumentParser, choices: dict[str, Any]) -> NoReturn:
+    if choices["read"] is True:
+        print(get_udev())
+    elif choices["write"] is True:
+        setup_rules(choices["path"])
+        print("Udev rules have been succesfully written.")
+    else:
+        udev_parser.print_help()
+    sys.exit()
+
+
+def _handle_list(list_parser: ArgumentParser, choices: dict[str, Any]) -> NoReturn:
+    keyboards = choices["keyboards"]
+    if choices["all"] is True:
+        # device_list is the general name and then the list of
+        # specific models or versions of the keyboard.
+
+        profiles = sorted(PROFILES.values(), key=lambda profile: profile["name"])
+
+        device_list: dict[str, list[str]] = {}
+        for profile in profiles:
+            name = profile["name"]
+            long_names = [model["long_name"] for model in profile["models"]]
+            long_names.sort()
+            device_list[name] = long_names
+
+        supported_devices = ["Full list of supported devices for Regium Klavye\n\n"]
+
+        for name, models in device_list.items():
+            formatted_model = [
+                f"Supported Models for {name} \n" ":\n" + "\n - ".join([""] + models)
+            ]
+            supported_devices.extend(formatted_model)
+
+        print(supported_devices)
+    else:
+        if not keyboards:
+            sys.exit("Unable to find any supported keyboards.")
+
+        supported_devices = ["List of detected and supported devices."]
+
+        for keyboard in keyboards:
+            valid_commands = []
+            if keyboard.has_rgb:
+                valid_commands.append("set-color")
+            if keyboard.has_anim:
+                valid_commands.append("set-anim")
+            if keyboard.has_custom_anim:
+                valid_commands.append("set-custom-anim")
+            supported_devices[-1] += "\n" + len(keyboard.long_name) * "-"
+            supported_devices.append(
+                keyboard.long_name + "\n" + " - " + ", ".join(valid_commands)
+            )
+        print("\n".join(supported_devices))
+    sys.exit()
+
+
+def _handle_set_color(parser: ArgumentParser, choices: dict[str, Any]) -> NoReturn:
+    keyboard = choices["keyboards"][choices["device"]]
+    if not keyboard.has_rgb:
+        sys.exit(f"{keyboard.long_name} does not support color changing.")
+
+    color = tuple([val for val in choices["color"]])
+    keyboard.apply_color(color)
+
+    sys.exit()
+
+
+def _handle_set_anim(parser: ArgumentParser, choices: dict[str, Any]) -> NoReturn:
+    keyboards = choices["keyboards"]
+    keyboard = choices["keyboards"][choices["device"]]
+    if choices["animation"] is None:
+        anim_info = "Below is a list of accepted animations for detected "
+        "keyboards."
+        anim_options = [anim_info]
+        for keyboard in keyboards:
+            long_name = keyboard.long_name
+
+            options = f'Options: {", ".join(keyboard.anim_options)}'
+
+            params: list[str] = []
+            for param in keyboard.anim_params:
+                params.append(
+                    f"{keyboard.anim_params[param]['description']} "
+                    f"--{param} {keyboard.anim_params[param]['choices']}"
+                )
+            final_params = "Parameters:\n\t[" + str("]\n\t[".join(params)) + "]"
+            explanation = (
+                f"{'-' * len(long_name)}\n{long_name}\n{options}\n{final_params}"
+            )
+
+            anim_options.append(explanation)
+        print("\n".join(anim_options))
+    else:
+        if choices["animation"] not in keyboard.anim_options:
+            sys.exit(f"Invalid animation provided for {keyboard.long_name}.")
+        parsed_params: dict[str, int | list[int]] = {}
+        for param in keyboard.anim_params:
+            if choices[param] is False:
+                continue
+
+            try:
+                parsed_params[param] = [int(_param) for _param in choices[param]]
+            except ValueError:
+                sys.exit(f"Invalid argument provided for {param}.")
+        try:
+            keyboard.set_animation(choices["animation"], parsed_params)
+        except ValueError:
+            sys.exit(
+                "Invalid argument provided for animation parameters. "
+                'Run "regium_klavye set-anim" for a full list options '
+                "available for the keyboard."
+            )
+        keyboard.apply_animation()
+    sys.exit()
+
+
+def _get_choices() -> tuple[ArgumentParser, dict[str, Any]]:
+    """Parse choices and return subparser used nad the choices."""
+    udev_parser = ArgumentParser()
+    # Set udev_parser as ArgumentParser.
+    # So type checkers dont complain in final match check for unbound variable.
+    parser = ArgumentParser(
         "Regium Klavye",
         description="Regium Klavye is a command line (CLI) application for "
         "controlling RGB, Keymapping and animations for supported keyboards.",
@@ -133,8 +259,7 @@ def main():  # noqa: D103
     try:
         keyboards = get_keyboards()
     except KeyboardNotFoundError:
-        print("No supported keyboards detected.")
-        return
+        sys.exit("No supported keyboards detected.")
 
     # SET-COLOR PARSER
     set_color_parser = subparsers.add_parser(
@@ -158,7 +283,6 @@ def main():  # noqa: D103
         "set-anim",
         description="Set animation for keyboard. The device number can be provided with"
         " --device to change the color for a specific device.",
-        help=argparse.SUPPRESS,
     )
 
     set_anim_parser.add_argument(
@@ -191,134 +315,51 @@ def main():  # noqa: D103
                 "--" + param,
                 required=False,
                 default=False,
-                **arg_len_params,  # type: ignore
+                **arg_len_params,
             )
 
     choices = vars(parser.parse_args())
 
     _check_linux(choices.get("write", False))
 
-    keyboard = keyboards[choices["device"]]
-
     if choices.get("color", False):
         choices["color"] = _parse_color(choices["color"])
 
-    if choices["command"] is None:
-        parser.print_help()
-        return
+    choices["keyboards"] = keyboards
 
-    elif "udev" == choices["command"]:
-        if choices["read"] is True:
-            print(get_udev())
-        elif choices["write"] is True:
-            setup_rules(choices["path"])
-            print("Udev rules have been succesfully written.")
-        else:
-            udev_parser.print_help()  # type: ignore
-        return
+    match choices["command"]:
+        case "udev":
+            _parser = udev_parser
+        case "list":
+            _parser = list_parser
+        case "set-color":
+            _parser = set_color_parser
+        case "set-anim":
+            _parser = set_anim_parser
+        case _:
+            sys.exit(parser.format_help())
 
-    if "list" == choices["command"]:
-        if choices["all"] is True:
-            # device_list is the general name and then the list of
-            # specific models or versions of the keyboard.
+    return _parser, choices
 
-            profiles = sorted(PROFILES.values(), key=lambda profile: profile["name"])
 
-            device_list = {
-                profile["name"]: sorted(
-                    [model["long_name"] for model in profile["models"]]
-                )
-                for profile in profiles
-            }
+def main():  # noqa: D103
+    parser, choices = _get_choices()
 
-            supported_devices = ["Full list of supported devices for Regium Klavye\n\n"]
+    match choices["command"]:
+        case "udev":
+            _handle_udev(parser, choices)
+        case "list":
+            _handle_list(parser, choices)
+        case _ if len(choices["keyboards"]) - 1 < choices["device"]:
+            sys.exit(
+                "Invalid device number provided or device not supported. "
+                'Use "regium_klavye list" for a list of supported and detected devices.'
+            )
+        case "set-color":
+            _handle_set_color(parser, choices)
+        case "set-anim":
+            _handle_set_anim(parser, choices)
 
-            for name, models in device_list.items():
-                formatted_model = [
-                    f"Supported Models for {name} \n"
-                    ":\n" + "\n - ".join([""] + models)
-                ]
-                supported_devices.extend(formatted_model)
-
-            print(supported_devices)
-        else:
-            if not keyboards:
-                sys.exit("Unable to find any supported keyboards.")
-
-            supported_devices = ["List of detected and supported devices."]
-
-            for keyboard in keyboards:
-                valid_commands = []
-                if keyboard.has_rgb:
-                    valid_commands.append("set-color")
-                if keyboard.has_anim:
-                    valid_commands.append("set-anim")
-                if keyboard.has_custom_anim:
-                    valid_commands.append("set-custom-anim")
-                supported_devices[-1] += "\n" + len(keyboard.long_name) * "-"
-                supported_devices.append(
-                    keyboard.long_name + "\n" + " - " + ", ".join(valid_commands)
-                )
-            print("\n".join(supported_devices))
-    elif len(keyboards) - 1 < choices["device"]:
-        sys.exit(
-            "Invalid device number provided or device not supported. "
-            'Use "regium_klavye list" for a list of supported and detected devices.'
-        )
-
-    if choices["command"] == "set-color":
-        if not keyboard.has_rgb:
-            sys.exit(f"{keyboard.long_name} does not support color changing.")
-
-        color = tuple([val for val in choices["color"]])
-        keyboard.apply_color(color)
-
-        return
-
-    elif choices["command"] == "set-anim":
-        if choices["animation"] is None:
-            anim_info = "Below is a list of accepted animations for detected "
-            "keyboards."
-            anim_options = [anim_info]
-            for keyboard in keyboards:
-                long_name = keyboard.long_name
-
-                options = f'Options: {", ".join(keyboard.anim_options)}'
-
-                params: list[str] = []
-                for param in keyboard.anim_params:
-                    params.append(
-                        f"{keyboard.anim_params[param]['description']} "
-                        f"--{param} {keyboard.anim_params[param]['choices']}"
-                    )
-                final_params = "Parameters:\n\t[" + str("]\n\t[".join(params)) + "]"
-                explanation = (
-                    f"{'-' * len(long_name)}\n{long_name}\n{options}\n{final_params}"
-                )
-
-                anim_options.append(explanation)
-            sys.exit("\n".join(anim_options))
-        else:
-            if choices["animation"] not in keyboard.anim_options:
-                sys.exit(f"Invalid animation provided for {keyboard.long_name}.")
-            parsed_params: dict[str, int | list[int]] = {}
-            for param in keyboard.anim_params:
-                if choices[param] is False:
-                    continue
-
-                try:
-                    parsed_params[param] = [int(_param) for _param in choices[param]]
-                except ValueError:
-                    sys.exit(f"Invalid argument provided for {param}.")
-            try:
-                keyboard.set_animation(choices["animation"], parsed_params)
-            except ValueError:
-                sys.exit(
-                    "Invalid argument provided for animation parameters. "
-                    'Run "regium_klavye set-anim" for a full list options '
-                    "available for the keyboard."
-                )
-            keyboard.apply_animation()
 
 
 main()
