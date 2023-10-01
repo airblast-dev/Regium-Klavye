@@ -14,7 +14,6 @@ Badge](https://img.shields.io/badge/code_format_-black-black?color=black&link=ht
 -   [Examples:](#examples)
     -   [Command Line example:](#command-line-example)
     -   [Library Examples:](#library-examples)
--   [Supported Devices](#supported-devices)
 
 Regium klavye is a CLI application and python library that allows
 configuration for Royal Kludge keyboards. The application is mainly
