@@ -30,12 +30,11 @@ python -m regium_klavye set-color 0 255 0  # Sets keyboard lighting to green.
 
 ### Library Examples:
 ```python
-from regium_klavye import rkapi
-
-
-keyboards = rkapi.get_keyboards()
-keyboard = keyboards[0]  # Assuming we want to change the first keyboard.
-keyboard.apply_color((255, 0, 255))  # Sets the keyboards lighting to red.
+>>> from regium_klavye import rkapi
+>>> from regium_klavye import rkapi
+>>> keyboards = rkapi.get_keyboards()
+>>> keyboard = keyboards[0]  # Assuming we want to change the first keyboard.
+>>> keyboard.apply_color((255, 0, 255))  # Sets the keyboards lighting to red.
 ```
 >For each keyboard please read supported commands from the documentation, as every implemented keyboard might not have full functionality.
 
