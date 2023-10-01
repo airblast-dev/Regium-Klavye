@@ -1,0 +1,88 @@
+.. _rk68_pre2023:
+
+Royal Kludge RK68 (pre 2023 model)
+==================================
+
+
+Command examples:
+-----------------
+
+Setting colors:
+---------------
+
+Setting the color of the lighting to white.
+
+.. code-block:: console
+  
+ $ python -m regium_klavye set-color -c 255 255 255 
+
+
+You can also use named colors such as "red" or "blue".
+
+.. code-block:: console
+  
+ $ python -m regium_klavye set-color -c red 
+
+
+...and blue!
+
+.. code-block:: console
+  
+ $ python -m regium_klavye set-color -c blue 
+
+Setting animations:
+-------------------
+
+Minimal example:
+~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+ 
+ $ python -m regium_klavye set-anim --anim neon_stream
+ 
+Any other parameter is filled in with the defaults. The same defaults that the official application uses.
+
+Full example:
+~~~~~~~~~~~~~
+
+.. code-block:: console
+ 
+ $ python -m regium_klavye set-anim --anim neon_stream --color 255 0 100 --color_mix 1 --sleep 1 --brightness 3 --speed 4
+
+Animations:
+~~~~~~~~~~~
+Currently accepts two animations.
+ * neon_stream
+ * sin_wave
+
+Speed:
+~~~~~~
+Speed of the animation.
+
+Accepted values are 0, 1, 2, 3 and 4.
+
+Brightness:
+~~~~~~~~~~~
+The brightness setting starts from 0 and each increment increases it by %20.
+
+Accepted values are 0, 1, 2, 3, 4 and 5.
+
+Color:
+~~~~~~
+The color to be used with the animation. Often ignored with color mixing enabled but in some cases can affect the animation.
+You can provide an RGB value such as "20 100 200" or a named color like "red".
+
+Color Mix:
+~~~~~~~~~~
+
+Makes the aniamtion execute with mixed colors such as a flowing rainbow effect.
+Setting color values can change the effects color for some animations.
+
+Accepted values are 0 or 1.
+
+Sleep:
+~~~~~~
+
+Time before the keyboard goes to sleep. The sleep setting starts from 10 minutes and each increment increases it by 10 minutes.
+
+Accepted values are 0, 1, 2, 3 and 4.
