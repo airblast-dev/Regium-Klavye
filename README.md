@@ -35,8 +35,8 @@ can be fixed or removed all together depending on the severity.
 
 ``` console
 $ python -m regium_klavye # Prints out help message.
-$ python -m regium_klavye set-color red  # Sets the keyboard lighting to red.
-$ python -m regium_klavye set-color 0 255 0  # Sets keyboard lighting to green.
+$ python -m regium_klavye set-color -c red  # Sets the keyboard lighting to red.
+$ python -m regium_klavye set-color -c 0 255 0  # Sets keyboard lighting to green.
 $ python -m regium_klavye set-anim --anim neon_stream  # Set an animation with minimal parameters.
 $ python -m regium_klavye set-anim --anim neon_stream --color 255 0 100 --color_mix 1 --sleep 1 --brightness 3 --speed 4  # Set an animation with its full parameters.
 ```
